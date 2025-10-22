@@ -42,7 +42,11 @@
     ],
     "experiments": {
       "typedRoutes": true,
-      "reactCompiler": true
+      "reactCompiler": false
+    },
+    "extra": {
+      "supabaseUrl": "your-supabase-url",
+      "supabaseAnonKey": "your-supabase-anon-key"
     }
   }
 }
