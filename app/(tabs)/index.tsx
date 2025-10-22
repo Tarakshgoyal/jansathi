@@ -1,7 +1,55 @@
-import React from 'react';
-import { Text, View, StyleSheet, ScrollView, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Text, View, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
+import { useRouter } from 'expo-router';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    // Check authentication
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.log('Not authenticated');
+        // Uncomment to redirect to auth screen
+        // router.push('/auth' as any);
+      } else {
+        setUser(session.user);
+      }
+    };
+    
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session) {
+        console.log('User logged out');
+        setUser(null);
+      } else {
+        setUser(session.user);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const departments = [
+    { name: "Water", emoji: "💧", dept: "jal" },
+    { name: "Electricity", emoji: "⚡", dept: "bijli" },
+    { name: "Road", emoji: "🛣️", dept: "sadak" },
+    { name: "Garbage", emoji: "🗑️", dept: "kachra" },
+  ];
+
+  const handleCreateReport = (dept?: string) => {
+    if (dept) {
+      router.push(`/create-report?dept=${dept}` as any);
+    } else {
+      router.push('/create-report' as any);
+    }
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.content}>
@@ -13,7 +61,10 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.actionContainer}>
-          <Pressable style={styles.floatingButton}>
+          <Pressable 
+            style={styles.floatingButton}
+            onPress={() => handleCreateReport()}
+          >
             <Text style={styles.floatingButtonText}>+</Text>
           </Pressable>
         </View>
@@ -21,11 +72,17 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.grid}>
-            <Pressable style={styles.gridItem}>
+            <Pressable 
+              style={styles.gridItem}
+              onPress={() => router.push('/reports')}
+            >
               <Text style={styles.emoji}>📋</Text>
               <Text style={styles.gridItemText}>My Reports</Text>
             </Pressable>
-            <Pressable style={styles.gridItem}>
+            <Pressable 
+              style={styles.gridItem}
+              onPress={() => router.push('/map')}
+            >
               <Text style={styles.emoji}>🗺️</Text>
               <Text style={styles.gridItemText}>View Map</Text>
             </Pressable>
@@ -35,13 +92,12 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Department Services</Text>
           <View style={styles.grid}>
-            {[
-              { name: "Water", emoji: "💧" },
-              { name: "Electricity", emoji: "⚡" },
-              { name: "Road", emoji: "🛣️" },
-              { name: "Garbage", emoji: "🗑️" },
-            ].map((service, index) => (
-              <Pressable key={index} style={styles.gridItem}>
+            {departments.map((service, index) => (
+              <Pressable 
+                key={index} 
+                style={styles.gridItem}
+                onPress={() => handleCreateReport(service.dept)}
+              >
                 <Text style={styles.emoji}>{service.emoji}</Text>
                 <Text style={styles.gridItemText}>{service.name}</Text>
               </Pressable>

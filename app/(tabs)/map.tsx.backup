@@ -1,0 +1,291 @@
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, Platform } from 'react-native';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Report {
+  id: string;
+  title: string;
+  latitude: number | null;
+  longitude: number | null;
+  department_type: string;
+  status: string;
+}
+
+// Default location: Dehradun, Uttarakhand
+const DEFAULT_REGION = {
+  latitude: 30.3165,
+  longitude: 78.0322,
+  latitudeDelta: 0.5,
+  longitudeDelta: 0.5,
+};
+
+// Department colors for markers
+const DEPARTMENT_COLORS: Record<string, string> = {
+  jal: '#3b82f6',      // blue
+  bijli: '#eab308',    // yellow/gold
+  sadak: '#6b7280',    // gray
+  kachra: '#22c55e',   // green
+  severage: '#8b5cf6', // purple
+};
+
+const DEPARTMENT_NAMES: Record<string, string> = {
+  jal: 'Water Supply',
+  bijli: 'Electricity',
+  sadak: 'Roads',
+  kachra: 'Garbage',
+  severage: 'Sewerage',
+};
+
+export default function MapScreen() {
+  const [reports, setReports] = useState<Report[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
+  const fetchReports = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('reports')
+        .select('id, title, latitude, longitude, department_type, status')
+        .not('latitude', 'is', null)
+        .not('longitude', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      if (!error && data) {
+        setReports(data);
+      }
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getMarkerColor = (departmentType: string) => {
+    return DEPARTMENT_COLORS[departmentType] || '#ef4444';
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#3b82f6" />
+      </View>
+    );
+  }
+
+  // Web fallback: Show list of reports with links to Google Maps
+  if (Platform.OS === 'web') {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Reports Map</Text>
+          <Text style={styles.subtitle}>
+            {reports.length} reports with location data
+          </Text>
+        </View>
+        
+        <ScrollView style={styles.webMapContainer}>
+          <View style={styles.webNotice}>
+            <Text style={styles.webNoticeTitle}>📱 Mobile View Required</Text>
+            <Text style={styles.webNoticeText}>
+              The interactive map is available on mobile devices. Here's a list of all reports with locations:
+            </Text>
+          </View>
+
+          {reports.map((report) => (
+            <View key={report.id} style={styles.reportCard}>
+              <View style={styles.reportHeader}>
+                <View style={[styles.colorDot, { backgroundColor: getMarkerColor(report.department_type) }]} />
+                <Text style={styles.reportTitle}>{report.title}</Text>
+              </View>
+              <View style={styles.reportDetails}>
+                <Text style={styles.reportDepartment}>
+                  {DEPARTMENT_NAMES[report.department_type] || report.department_type}
+                </Text>
+                <Text style={styles.reportStatus}> • {report.status}</Text>
+              </View>
+              {report.latitude && report.longitude && (
+                <Text 
+                  style={styles.locationLink}
+                  onPress={() => {
+                    if (typeof window !== 'undefined') {
+                      window.open(
+                        `https://www.google.com/maps?q=${report.latitude},${report.longitude}`,
+                        '_blank'
+                      );
+                    }
+                  }}
+                >
+                  📍 View on Google Maps
+                </Text>
+              )}
+            </View>
+          ))}
+
+          {reports.length === 0 && (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyText}>No reports with location data yet</Text>
+            </View>
+          )}
+        </ScrollView>
+      </View>
+    );
+  }
+
+  // Native platforms: Show actual map
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Reports Map</Text>
+        <Text style={styles.subtitle}>
+          {reports.length} reports with location data
+        </Text>
+      </View>
+      
+      {MapView && (
+        <MapView
+          style={styles.map}
+          provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+          initialRegion={DEFAULT_REGION}
+          showsUserLocation
+          showsMyLocationButton
+        >
+          {Marker && reports.map((report) => {
+            if (report.latitude === null || report.longitude === null) return null;
+            
+            return (
+              <Marker
+                key={report.id}
+                coordinate={{
+                  latitude: report.latitude,
+                  longitude: report.longitude,
+                }}
+                title={report.title}
+                description={`${report.department_type} - ${report.status}`}
+                pinColor={getMarkerColor(report.department_type)}
+              />
+            );
+          })}
+        </MapView>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f9fafb',
+  },
+  header: {
+    padding: 24,
+    paddingBottom: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1f2937',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#6b7280',
+  },
+  map: {
+    flex: 1,
+    margin: 24,
+    marginTop: 0,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  // Web-specific styles
+  webMapContainer: {
+    flex: 1,
+    padding: 24,
+    paddingTop: 0,
+  },
+  webNotice: {
+    backgroundColor: '#dbeafe',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#3b82f6',
+  },
+  webNoticeTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1e40af',
+    marginBottom: 8,
+  },
+  webNoticeText: {
+    fontSize: 14,
+    color: '#1e40af',
+    lineHeight: 20,
+  },
+  reportCard: {
+    backgroundColor: 'white',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  reportHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  colorDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 8,
+  },
+  reportTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1f2937',
+    flex: 1,
+  },
+  reportDetails: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  reportDepartment: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  reportStatus: {
+    fontSize: 14,
+    color: '#6b7280',
+    textTransform: 'capitalize',
+  },
+  locationLink: {
+    fontSize: 14,
+    color: '#3b82f6',
+    fontWeight: '500',
+    marginTop: 4,
+  },
+  emptyState: {
+    padding: 48,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#9ca3af',
+  },
+});

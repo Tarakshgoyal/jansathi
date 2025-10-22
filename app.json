@@ -9,7 +9,13 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": ""
+      },
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app needs access to your location to show nearby reports and help you create reports with location data."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +25,12 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "config": {
+        "googleMaps": {
+          "apiKey": ""
+        }
+      }
     },
     "web": {
       "output": "static",
@@ -45,8 +56,8 @@
       "reactCompiler": false
     },
     "extra": {
-      "supabaseUrl": "your-supabase-url",
-      "supabaseAnonKey": "your-supabase-anon-key"
+      "supabaseUrl": "https://nftxfzumqapmyirtkwxt.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mdHhmenVtcWFwbXlpcnRrd3h0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMDUwMzMsImV4cCI6MjA3NjY4MTAzM30.RIQ99kMWP8IUS4nB4QgAIqqWFqrWgpH6dK8P2txD8zQ"
     }
   }
 }
