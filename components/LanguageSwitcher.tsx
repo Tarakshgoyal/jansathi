@@ -1,8 +1,7 @@
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
-import { Pressable } from "@/components/ui/pressable";
-import { Text } from "@/components/ui/text";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ChevronDown } from "lucide-react-native";
+import { Picker } from "@react-native-picker/picker";
+import { LanguagesIcon } from "lucide-react-native";
 import React, { useState } from "react";
 import { Modal, TouchableOpacity, View } from "react-native";
 
@@ -20,15 +19,23 @@ export const LanguageSwitcher: React.FC = () => {
       <Button
         variant="outline"
         size="sm"
-        className="bg-white min-w-[100px]"
+        className="bg-background-0 border-outline-200 min-w-[100px] rounded-full border"
         onPress={() => setIsOpen(!isOpen)}
+        style={{
+          // Ensure minimum touch target size for accessibility (44x44px)
+          minHeight: 44,
+          minWidth: 100,
+        }}
       >
-        <ButtonText className="text-gray-700 text-sm">
+        <ButtonText className="text-typography-900 text-sm font-medium">
           {language === "en"
             ? getText(t.language.english)
             : getText(t.language.hindi)}
         </ButtonText>
-        <ButtonIcon as={ChevronDown} className="ml-1 w-4 h-4" />
+        <ButtonIcon
+          as={LanguagesIcon}
+          className="ml-1 w-4 h-4 text-typography-900"
+        />
       </Button>
 
       <Modal
@@ -38,44 +45,29 @@ export const LanguageSwitcher: React.FC = () => {
         onRequestClose={() => setIsOpen(false)}
       >
         <TouchableOpacity
-          className="flex-1 bg-black/20"
+          className="flex-1 bg-typography-900/20"
           activeOpacity={1}
           onPress={() => setIsOpen(false)}
         >
           <View className="flex-1 items-end justify-start pt-20 px-4">
-            <View className="bg-white rounded-lg shadow-lg border border-gray-200 min-w-[140px] overflow-hidden">
-              <Pressable
-                onPress={() => handleLanguageChange("en")}
-                className={`p-4 border-b border-gray-100 ${
-                  language === "en" ? "bg-primary-50" : "bg-white"
-                } active:bg-gray-100`}
+            <View className="bg-background-0 rounded-xl shadow-soft-2 border border-outline-200 overflow-hidden p-2">
+              {/* Picker from @react-native-picker/picker for selecting language */}
+              <Picker
+                selectedValue={language}
+                onValueChange={(itemValue) =>
+                  handleLanguageChange(itemValue as "en" | "hi")
+                }
+                accessibilityLabel={
+                  getText(t.language.selectLanguage) || "Select language"
+                }
+                style={{
+                  minWidth: 140,
+                }}
+                mode="dropdown"
               >
-                <Text
-                  className={`text-sm ${
-                    language === "en"
-                      ? "text-primary-600 font-semibold"
-                      : "text-gray-700"
-                  }`}
-                >
-                  {getText(t.language.english)}
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => handleLanguageChange("hi")}
-                className={`p-4 ${
-                  language === "hi" ? "bg-primary-50" : "bg-white"
-                } active:bg-gray-100`}
-              >
-                <Text
-                  className={`text-sm ${
-                    language === "hi"
-                      ? "text-primary-600 font-semibold"
-                      : "text-gray-700"
-                  }`}
-                >
-                  {getText(t.language.hindi)}
-                </Text>
-              </Pressable>
+                <Picker.Item label={getText(t.language.english)} value="en" />
+                <Picker.Item label={getText(t.language.hindi)} value="hi" />
+              </Picker>
             </View>
           </View>
         </TouchableOpacity>

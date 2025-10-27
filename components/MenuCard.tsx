@@ -10,6 +10,7 @@ interface MenuCardProps {
   description: string;
   icon: React.ComponentType<any>;
   onPress: () => void;
+  variant?: "primary" | "secondary";
 }
 
 export const MenuCard: React.FC<MenuCardProps> = ({
@@ -17,19 +18,34 @@ export const MenuCard: React.FC<MenuCardProps> = ({
   description,
   icon: IconComponent,
   onPress,
+  variant = "secondary",
 }) => {
+  const iconColor = variant === "primary" ? "text-brand-500" : "text-info-500";
+  const borderColor =
+    variant === "primary" ? "border-brand-200" : "border-outline-100";
+
   return (
     <Pressable
       onPress={onPress}
-      className="w-full bg-white rounded-xl p-6 shadow-md active:opacity-80 mb-4 border border-gray-200"
+      className={`w-full bg-background-0 rounded-2xl p-6 shadow-soft-1 active:opacity-80 border ${borderColor}`}
+      style={{
+        // Ensure minimum touch target size for accessibility (44x44px)
+        minHeight: 44,
+      }}
     >
       <VStack space="md" className="items-start">
-        <Icon as={IconComponent} size="xl" className="text-primary-600" />
+        <Icon
+          as={IconComponent}
+          size="xl"
+          className={iconColor}
+          // Accessible icon size
+          style={{ width: 32, height: 32 }}
+        />
         <VStack space="xs">
-          <Heading size="lg" className="text-gray-900 font-semibold">
+          <Heading size="lg" className="text-typography-900 font-semibold">
             {title}
           </Heading>
-          <Text size="sm" className="text-gray-600">
+          <Text size="sm" className="text-secondary-500 leading-5">
             {description}
           </Text>
         </VStack>

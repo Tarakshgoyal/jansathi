@@ -106,3 +106,4 @@ bunx gluestack-ui add alert
 - All the typescript code should have type written with it.
 - Create a config file where you will save translation of whatever you are writing in the ui in english and hindi such that when user switches language all text in the app is changed to hindi according to the config.
 - Don't use style of react native instead we have native wind support ie we have tailwind support so always use className to give styling.
+- Never Hardcode any colors and use theme.
