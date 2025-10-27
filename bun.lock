@@ -8,7 +8,7 @@
         "@expo/vector-icons": "^15.0.3",
         "@gluestack-ui/core": "^3.0.10",
         "@gluestack-ui/utils": "^3.0.11",
-        "@legendapp/motion": "^2.3.0",
+        "@legendapp/motion": "^2.4.0",
         "@react-navigation/bottom-tabs": "^7.4.0",
         "@react-navigation/elements": "^2.6.3",
         "@react-navigation/native": "^7.1.8",
@@ -25,6 +25,7 @@
         "expo-symbols": "~1.0.7",
         "expo-system-ui": "~6.0.8",
         "expo-web-browser": "~15.0.8",
+        "lucide-react-native": "^0.548.0",
         "nativewind": "^4.1.23",
         "react": "19.1.0",
         "react-aria": "^3.33.0",
@@ -34,7 +35,7 @@
         "react-native-reanimated": "~4.1.0",
         "react-native-safe-area-context": "^5.6.1",
         "react-native-screens": "~4.16.0",
-        "react-native-svg": "^15.13.0",
+        "react-native-svg": "^15.12.0",
         "react-native-web": "~0.21.0",
         "react-native-worklets": "^0.5.1",
         "react-stately": "^3.39.0",
@@ -1471,6 +1472,8 @@
     "loose-envify": ["loose-envify@1.4.0", "", { "dependencies": { "js-tokens": "^3.0.0 || ^4.0.0" }, "bin": { "loose-envify": "cli.js" } }, "sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q=="],
 
     "lru-cache": ["lru-cache@10.4.3", "", {}, "sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ=="],
+
+    "lucide-react-native": ["lucide-react-native@0.548.0", "", { "peerDependencies": { "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react-native": "*", "react-native-svg": "^12.0.0 || ^13.0.0 || ^14.0.0 || ^15.0.0" } }, "sha512-me46HEAZsJJLH3/5FVBOcr3NFkwHZSsaEi2MSlbyGvqx4aVQA8XNDAepYqCleTWpOz+iM3A0J8VAZXg3um810Q=="],
 
     "makeerror": ["makeerror@1.0.12", "", { "dependencies": { "tmpl": "1.0.5" } }, "sha512-JmqCvUhmt43madlpFzG4BQzG2Z3m6tvQDNKdClZnO3VbIudJYmxsT0FNJMeiB2+JTSlTQTSbU8QdesVmwJcmLg=="],
 
