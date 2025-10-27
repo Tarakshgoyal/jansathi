@@ -28,6 +28,15 @@
     "plugins": [
       "expo-router",
       [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Jansarthi to use your location to help you report issues in your area.",
+          "locationWhenInUsePermission": "Allow Jansarthi to use your location to help you report issues in your area.",
+          "isAndroidBackgroundLocationEnabled": false,
+          "isAndroidForegroundServiceEnabled": false
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",

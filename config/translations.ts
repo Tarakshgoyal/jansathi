@@ -14,6 +14,14 @@ export interface Translations {
   // Common
   appName: Translation;
 
+  // Location
+  location: {
+    loading: Translation;
+    denied: Translation;
+    error: Translation;
+    unavailable: Translation;
+  };
+
   // Menu Screen
   menu: {
     welcome: Translation;
@@ -73,6 +81,26 @@ export const translations: Translations = {
   appName: {
     en: "Jansarthi",
     hi: "जनसारथी",
+  },
+
+  // Location
+  location: {
+    loading: {
+      en: "Getting location...",
+      hi: "स्थान प्राप्त हो रहा है...",
+    },
+    denied: {
+      en: "Location access denied",
+      hi: "स्थान अभिगम अस्वीकृत",
+    },
+    error: {
+      en: "Unable to get location",
+      hi: "स्थान प्राप्त नहीं हो सका",
+    },
+    unavailable: {
+      en: "Location unavailable",
+      hi: "स्थान अनुपलब्ध",
+    },
   },
 
   // Menu Screen
