@@ -24,6 +24,19 @@ export interface Translations {
     viewReportsDesc: Translation;
     viewMap: Translation;
     viewMapDesc: Translation;
+    quickActions: Translation;
+    selectIssueType: Translation;
+    selectIssueTypeDesc: Translation;
+  };
+
+  // Quick Actions
+  quickActions: {
+    viewReports: Translation;
+    viewMap: Translation;
+    jalSamasya: Translation;
+    bijliSamasya: Translation;
+    sadakSamasya: Translation;
+    kachraSamasya: Translation;
   };
 
   // Issue Types
@@ -95,6 +108,46 @@ export const translations: Translations = {
     viewMapDesc: {
       en: "See all reports in your city on map",
       hi: "मानचित्र पर अपने शहर की सभी रिपोर्ट देखें",
+    },
+    quickActions: {
+      en: "Quick Actions",
+      hi: "त्वरित कार्य",
+    },
+    selectIssueType: {
+      en: "Select Issue Type",
+      hi: "समस्या का प्रकार चुनें",
+    },
+    selectIssueTypeDesc: {
+      en: "Choose the type of issue you want to report",
+      hi: "जिस प्रकार की समस्या आप रिपोर्ट करना चाहते हैं उसे चुनें",
+    },
+  },
+
+  // Quick Actions
+  quickActions: {
+    viewReports: {
+      en: "My Reports",
+      hi: "मेरी रिपोर्ट्स",
+    },
+    viewMap: {
+      en: "View Map",
+      hi: "मानचित्र देखें",
+    },
+    jalSamasya: {
+      en: "Water Issue",
+      hi: "जल समस्या",
+    },
+    bijliSamasya: {
+      en: "Electricity Issue",
+      hi: "बिजली समस्या",
+    },
+    sadakSamasya: {
+      en: "Road Issue",
+      hi: "सड़क समस्या",
+    },
+    kachraSamasya: {
+      en: "Garbage Issue",
+      hi: "कचरा समस्या",
     },
   },
 

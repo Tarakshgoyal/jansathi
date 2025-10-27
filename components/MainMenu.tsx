@@ -1,19 +1,47 @@
 import { Header } from "@/components/Header";
+import { IssueTypeCard } from "@/components/IssueTypeCard";
 import { MenuCard } from "@/components/MenuCard";
+import { QuickActionItem } from "@/components/QuickActionItem";
+import {
+  Actionsheet,
+  ActionsheetBackdrop,
+  ActionsheetContent,
+  ActionsheetDragIndicator,
+  ActionsheetDragIndicatorWrapper,
+} from "@/components/ui/actionsheet";
+import { Box } from "@/components/ui/box";
+import { Grid, GridItem } from "@/components/ui/grid";
+import { Heading } from "@/components/ui/heading";
+import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useRouter } from "expo-router";
-import { Eye, Map, Plus } from "lucide-react-native";
+import {
+  Droplet,
+  Eye,
+  Map,
+  Plus,
+  Trash2,
+  Truck,
+  Zap,
+} from "lucide-react-native";
+import { useState } from "react";
 import { ScrollView, View } from "react-native";
 
 export const MainMenu = () => {
   const { t, getText } = useLanguage();
   const router = useRouter();
+  const [showIssueTypeSheet, setShowIssueTypeSheet] = useState(false);
 
   const handleCreateReport = () => {
-    // Navigate to create report screen
-    // router.push('/create-report');
-    console.log("Navigate to create report");
+    setShowIssueTypeSheet(true);
+  };
+
+  const handleIssueTypeSelect = (issueType: string) => {
+    setShowIssueTypeSheet(false);
+    // Navigate to create report screen with issue type
+    // router.push(`/create-report?type=${issueType}`);
+    console.log(`Navigate to create report with type: ${issueType}`);
   };
 
   const handleViewReports = () => {
@@ -28,6 +56,22 @@ export const MainMenu = () => {
     console.log("Navigate to map");
   };
 
+  const handleJalSamasya = () => {
+    handleIssueTypeSelect("water");
+  };
+
+  const handleBijliSamasya = () => {
+    handleIssueTypeSelect("electricity");
+  };
+
+  const handleSadakSamasya = () => {
+    handleIssueTypeSelect("road");
+  };
+
+  const handleKachraSamasya = () => {
+    handleIssueTypeSelect("garbage");
+  };
+
   return (
     <ScrollView className="flex-1">
       {/* Header with Brand Background */}
@@ -35,8 +79,8 @@ export const MainMenu = () => {
 
       {/* Content Area */}
       <View className="flex-1 bg-background-0 rounded-t-3xl -mt-4 pt-6 px-6 pb-10">
-        {/* Menu Cards */}
-        <VStack space="lg" className="mt-2">
+        {/* Create New Report Card - Primary Action */}
+        <VStack space="lg" className="mt-2 mb-6">
           <MenuCard
             title={getText(t.menu.createReport)}
             description={getText(t.menu.createReportDesc)}
@@ -44,24 +88,166 @@ export const MainMenu = () => {
             onPress={handleCreateReport}
             variant="primary"
           />
-
-          <MenuCard
-            title={getText(t.menu.viewReports)}
-            description={getText(t.menu.viewReportsDesc)}
-            icon={Eye}
-            onPress={handleViewReports}
-            variant="secondary"
-          />
-
-          <MenuCard
-            title={getText(t.menu.viewMap)}
-            description={getText(t.menu.viewMapDesc)}
-            icon={Map}
-            onPress={handleViewMap}
-            variant="secondary"
-          />
         </VStack>
+
+        {/* Quick Actions Section */}
+        <Box className="mb-6">
+          <Heading size="lg" className="text-typography-900 mb-4">
+            {getText(t.menu.quickActions)}
+          </Heading>
+          <Box className="bg-background-50 rounded-2xl p-4 border border-outline-100">
+            <Grid
+              className="gap-2"
+              _extra={{
+                className: "grid-cols-3",
+              }}
+            >
+              <GridItem
+                _extra={{
+                  className: "col-span-1",
+                }}
+              >
+                <QuickActionItem
+                  icon={Eye}
+                  label={getText(t.quickActions.viewReports)}
+                  onPress={handleViewReports}
+                />
+              </GridItem>
+              <GridItem
+                _extra={{
+                  className: "col-span-1",
+                }}
+              >
+                <QuickActionItem
+                  icon={Map}
+                  label={getText(t.quickActions.viewMap)}
+                  onPress={handleViewMap}
+                />
+              </GridItem>
+              <GridItem
+                _extra={{
+                  className: "col-span-1",
+                }}
+              >
+                <QuickActionItem
+                  icon={Droplet}
+                  label={getText(t.quickActions.jalSamasya)}
+                  onPress={handleJalSamasya}
+                />
+              </GridItem>
+              <GridItem
+                _extra={{
+                  className: "col-span-1",
+                }}
+              >
+                <QuickActionItem
+                  icon={Zap}
+                  label={getText(t.quickActions.bijliSamasya)}
+                  onPress={handleBijliSamasya}
+                />
+              </GridItem>
+              <GridItem
+                _extra={{
+                  className: "col-span-1",
+                }}
+              >
+                <QuickActionItem
+                  icon={Truck}
+                  label={getText(t.quickActions.sadakSamasya)}
+                  onPress={handleSadakSamasya}
+                />
+              </GridItem>
+              <GridItem
+                _extra={{
+                  className: "col-span-1",
+                }}
+              >
+                <QuickActionItem
+                  icon={Trash2}
+                  label={getText(t.quickActions.kachraSamasya)}
+                  onPress={handleKachraSamasya}
+                />
+              </GridItem>
+            </Grid>
+          </Box>
+        </Box>
       </View>
+
+      {/* Issue Type Selection ActionSheet */}
+      <Actionsheet
+        isOpen={showIssueTypeSheet}
+        onClose={() => setShowIssueTypeSheet(false)}
+      >
+        <ActionsheetBackdrop />
+        <ActionsheetContent className="px-6 pb-8">
+          <ActionsheetDragIndicatorWrapper>
+            <ActionsheetDragIndicator />
+          </ActionsheetDragIndicatorWrapper>
+
+          <VStack space="lg" className="w-full mt-4">
+            <VStack space="xs">
+              <Heading size="xl" className="text-typography-900">
+                {getText(t.menu.selectIssueType)}
+              </Heading>
+              <Text size="sm" className="text-typography-500">
+                {getText(t.menu.selectIssueTypeDesc)}
+              </Text>
+            </VStack>
+
+            <Grid
+              className="gap-4"
+              _extra={{
+                className: "grid-cols-2",
+              }}
+            >
+              <GridItem
+                _extra={{
+                  className: "col-span-1",
+                }}
+              >
+                <IssueTypeCard
+                  icon={Droplet}
+                  label={getText(t.issueTypes.jalSamasya)}
+                  onPress={handleJalSamasya}
+                />
+              </GridItem>
+              <GridItem
+                _extra={{
+                  className: "col-span-1",
+                }}
+              >
+                <IssueTypeCard
+                  icon={Zap}
+                  label={getText(t.issueTypes.bijliSamasya)}
+                  onPress={handleBijliSamasya}
+                />
+              </GridItem>
+              <GridItem
+                _extra={{
+                  className: "col-span-1",
+                }}
+              >
+                <IssueTypeCard
+                  icon={Truck}
+                  label={getText(t.issueTypes.sadakSamasya)}
+                  onPress={handleSadakSamasya}
+                />
+              </GridItem>
+              <GridItem
+                _extra={{
+                  className: "col-span-1",
+                }}
+              >
+                <IssueTypeCard
+                  icon={Trash2}
+                  label={getText(t.issueTypes.kachraSamasya)}
+                  onPress={handleKachraSamasya}
+                />
+              </GridItem>
+            </Grid>
+          </VStack>
+        </ActionsheetContent>
+      </Actionsheet>
     </ScrollView>
   );
 };
