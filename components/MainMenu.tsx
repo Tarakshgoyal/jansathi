@@ -17,12 +17,12 @@ import { VStack } from "@/components/ui/vstack";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useRouter } from "expo-router";
 import {
+  Construction,
   Droplet,
   Eye,
   Map,
   Plus,
   Trash2,
-  Truck,
   Zap,
 } from "lucide-react-native";
 import { useState } from "react";
@@ -78,7 +78,7 @@ export const MainMenu = () => {
       <Header />
 
       {/* Content Area */}
-      <View className="flex-1 bg-background-0 rounded-t-3xl -mt-4 pt-6 px-6 pb-10">
+      <View className="flex-1 bg-background-0 rounded-t-3xl -mt-4 pt-6 px-6 pb-10 min-h-screen">
         {/* Create New Report Card - Primary Action */}
         <VStack space="lg" className="mt-2 mb-6">
           <MenuCard
@@ -152,7 +152,7 @@ export const MainMenu = () => {
                 }}
               >
                 <QuickActionItem
-                  icon={Truck}
+                  icon={Construction}
                   label={getText(t.quickActions.sadakSamasya)}
                   onPress={handleSadakSamasya}
                 />
@@ -228,7 +228,7 @@ export const MainMenu = () => {
                 }}
               >
                 <IssueTypeCard
-                  icon={Truck}
+                  icon={Construction}
                   label={getText(t.issueTypes.sadakSamasya)}
                   onPress={handleSadakSamasya}
                 />
