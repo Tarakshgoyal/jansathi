@@ -102,6 +102,20 @@ export const MainMenu = () => {
             onPress={handleCreateReport}
             variant="primary"
           />
+          <MenuCard
+            title={getText(t.quickActions.viewReports)}
+            description={getText(t.menu.viewReportsDesc)}
+            icon={Eye}
+            onPress={handleViewReports}
+            variant="primary"
+          />
+          <MenuCard
+            title={getText(t.quickActions.viewMap)}
+            description={getText(t.menu.viewMapDesc)}
+            icon={Map}
+            onPress={handleViewMap}
+            variant="primary"
+          />
         </VStack>
 
         {/* Quick Actions Section */}
@@ -109,35 +123,12 @@ export const MainMenu = () => {
           <Heading size="lg" className="text-typography-900 mb-4">
             {getText(t.menu.quickActions)}
           </Heading>
-          <Box className="bg-background-50 rounded-2xl p-4 border border-outline-100">
+          <Box className="bg-background-50 rounded-2xl p-3 border border-outline-100">
             <Grid
-              className="gap-2"
               _extra={{
-                className: "grid-cols-3",
+                className: "grid-cols-2",
               }}
             >
-              <GridItem
-                _extra={{
-                  className: "col-span-1",
-                }}
-              >
-                <QuickActionItem
-                  icon={Eye}
-                  label={getText(t.quickActions.viewReports)}
-                  onPress={handleViewReports}
-                />
-              </GridItem>
-              <GridItem
-                _extra={{
-                  className: "col-span-1",
-                }}
-              >
-                <QuickActionItem
-                  icon={Map}
-                  label={getText(t.quickActions.viewMap)}
-                  onPress={handleViewMap}
-                />
-              </GridItem>
               <GridItem
                 _extra={{
                   className: "col-span-1",
