@@ -117,9 +117,10 @@ export const translations: Translations = {
       en: "Create New Report",
       hi: "नई रिपोर्ट बनाएं",
     },
+    // TODO: Make Hindi Samsaya ko
     createReportDesc: {
-      en: "Report an issue in your area",
-      hi: "अपने क्षेत्र में समस्या की रिपोर्ट करें",
+      en: "Report an issue",
+      hi: "समस्या की रिपोर्ट करें",
     },
     viewReports: {
       en: "My Reports",
