@@ -22,6 +22,16 @@ export interface Translations {
     unavailable: Translation;
   };
 
+  // Map
+  map: {
+    loadingLocation: Translation;
+    permissionDenied: Translation;
+    locationError: Translation;
+    enableLocationInstructions: Translation;
+    yourLocation: Translation;
+    unsupportedPlatform: Translation;
+  };
+
   // Menu Screen
   menu: {
     welcome: Translation;
@@ -100,6 +110,34 @@ export const translations: Translations = {
     unavailable: {
       en: "Location unavailable",
       hi: "स्थान अनुपलब्ध",
+    },
+  },
+
+  // Map
+  map: {
+    loadingLocation: {
+      en: "Loading your location...",
+      hi: "आपका स्थान लोड हो रहा है...",
+    },
+    permissionDenied: {
+      en: "Location permission denied",
+      hi: "स्थान अनुमति अस्वीकृत",
+    },
+    locationError: {
+      en: "Unable to get your location",
+      hi: "आपका स्थान प्राप्त नहीं हो सका",
+    },
+    enableLocationInstructions: {
+      en: "Please enable location services in your device settings",
+      hi: "कृपया अपने डिवाइस सेटिंग्स में स्थान सेवाएं सक्षम करें",
+    },
+    yourLocation: {
+      en: "Your Location",
+      hi: "आपका स्थान",
+    },
+    unsupportedPlatform: {
+      en: "Maps are only available on Android and iOS",
+      hi: "मानचित्र केवल Android और iOS पर उपलब्ध हैं",
     },
   },
 

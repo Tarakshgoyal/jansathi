@@ -40,8 +40,22 @@ export const MainMenu = () => {
   const handleIssueTypeSelect = (issueType: string) => {
     setShowIssueTypeSheet(false);
     // Navigate to create report screen with issue type
-    // router.push(`/create-report?type=${issueType}`);
-    console.log(`Navigate to create report with type: ${issueType}`);
+    switch (issueType) {
+      case "water":
+        router.push("/water-issue");
+        break;
+      case "electricity":
+        router.push("/electricity-issue");
+        break;
+      case "road":
+        router.push("/road-issue");
+        break;
+      case "garbage":
+        router.push("/garbage-issue");
+        break;
+      default:
+        console.log(`Navigate to create report with type: ${issueType}`);
+    }
   };
 
   const handleViewReports = () => {
