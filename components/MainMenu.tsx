@@ -100,21 +100,21 @@ export const MainMenu = () => {
             description={getText(t.menu.createReportDesc)}
             icon={Plus}
             onPress={handleCreateReport}
-            variant="primary"
+            variant="cta"
           />
           <MenuCard
             title={getText(t.quickActions.viewReports)}
             description={getText(t.menu.viewReportsDesc)}
             icon={Eye}
             onPress={handleViewReports}
-            variant="primary"
+            variant="secondary"
           />
           <MenuCard
             title={getText(t.quickActions.viewMap)}
             description={getText(t.menu.viewMapDesc)}
             icon={Map}
             onPress={handleViewMap}
-            variant="primary"
+            variant="secondary"
           />
         </VStack>
 
@@ -123,58 +123,33 @@ export const MainMenu = () => {
           <Heading size="lg" className="text-typography-900 mb-4">
             {getText(t.menu.quickActions)}
           </Heading>
-          <Box className="bg-background-50 rounded-2xl p-3 border border-outline-100">
-            <Grid
-              _extra={{
-                className: "grid-cols-2",
-              }}
-            >
-              <GridItem
-                _extra={{
-                  className: "col-span-1",
-                }}
-              >
-                <QuickActionItem
-                  icon={Droplet}
-                  label={getText(t.quickActions.jalSamasya)}
-                  onPress={handleJalSamasya}
-                />
-              </GridItem>
-              <GridItem
-                _extra={{
-                  className: "col-span-1",
-                }}
-              >
-                <QuickActionItem
-                  icon={Zap}
-                  label={getText(t.quickActions.bijliSamasya)}
-                  onPress={handleBijliSamasya}
-                />
-              </GridItem>
-              <GridItem
-                _extra={{
-                  className: "col-span-1",
-                }}
-              >
-                <QuickActionItem
-                  icon={Construction}
-                  label={getText(t.quickActions.sadakSamasya)}
-                  onPress={handleSadakSamasya}
-                />
-              </GridItem>
-              <GridItem
-                _extra={{
-                  className: "col-span-1",
-                }}
-              >
-                <QuickActionItem
-                  icon={Trash2}
-                  label={getText(t.quickActions.kachraSamasya)}
-                  onPress={handleKachraSamasya}
-                />
-              </GridItem>
-            </Grid>
-          </Box>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            className="gap-3"
+            contentContainerStyle={{ gap: 12 }}
+          >
+            <QuickActionItem
+              icon={Droplet}
+              label={getText(t.quickActions.jalSamasya)}
+              onPress={handleJalSamasya}
+            />
+            <QuickActionItem
+              icon={Zap}
+              label={getText(t.quickActions.bijliSamasya)}
+              onPress={handleBijliSamasya}
+            />
+            <QuickActionItem
+              icon={Construction}
+              label={getText(t.quickActions.sadakSamasya)}
+              onPress={handleSadakSamasya}
+            />
+            <QuickActionItem
+              icon={Trash2}
+              label={getText(t.quickActions.kachraSamasya)}
+              onPress={handleKachraSamasya}
+            />
+          </ScrollView>
         </Box>
       </View>
 

@@ -19,13 +19,18 @@ export const QuickActionItem = ({
   return (
     <Pressable
       onPress={onPress}
-      className="flex-1 items-center justify-center py-4 active:opacity-70"
+      className="items-center justify-center py-6 px-4 active:opacity-70 bg-background-0 rounded-2xl border border-outline-100 shadow-soft-1"
+      style={{
+        // Ensure larger touch target and comfortable width for horizontal scroll
+        minWidth: 130,
+        minHeight: 130,
+      }}
     >
-      <VStack space="sm" className="items-center">
-        <View className="rounded-full p-2 bg-brand-200">
-          <Icon size="xl" className="text-brand-500" as={IconComponent} />
+      <VStack space="md" className="items-center">
+        <View className="rounded-full p-4 bg-brand-100">
+          <Icon size="xl" className="text-brand-600" as={IconComponent} />
         </View>
-        <Text size="xs" className="text-typography-700 text-center">
+        <Text size="sm" className="text-typography-800 text-center font-medium">
           {label}
         </Text>
       </VStack>

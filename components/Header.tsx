@@ -79,13 +79,19 @@ export const Header = () => {
             {getText(t.menu.subtitle)}
           </Text>
         </VStack>
-        <HStack className="ml-4 items-center" space="sm">
+        <HStack className="ml-4 items-center" space="md">
           <LanguageSwitcher />
-          <Pressable className="border rounded-full p-3 bg-primary-0">
-            <Bell />
+          <Pressable
+            className="border border-white/20 rounded-full p-3 bg-white/10 active:opacity-70"
+            style={{ minWidth: 44, minHeight: 44 }}
+          >
+            <Bell size={20} className="text-typography-white" />
           </Pressable>
-          <Pressable className="border rounded-full p-3 bg-primary-0">
-            <User />
+          <Pressable
+            className="border border-white/20 rounded-full p-3 bg-white/10 active:opacity-70"
+            style={{ minWidth: 44, minHeight: 44 }}
+          >
+            <User size={20} className="text-typography-white" />
           </Pressable>
         </HStack>
       </HStack>

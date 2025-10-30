@@ -49,6 +49,11 @@ const GarbageIssue: React.FC<GarbageIssueProps> = () => {
   return (
     <ScrollView className="flex-1 bg-background-50">
       <VStack className="flex-1 p-4" space="2xl">
+        {/* Map Component */}
+        <VStack space="sm">
+          <LocationMap height={300} onLocationChange={handleLocationChange} />
+        </VStack>
+
         {/* Issue Details Form */}
         <VStack space="md">
           {/* Description Field */}
@@ -68,11 +73,6 @@ const GarbageIssue: React.FC<GarbageIssueProps> = () => {
               />
             </Textarea>
           </FormControl>
-        </VStack>
-
-        {/* Map Component */}
-        <VStack space="sm">
-          <LocationMap height={300} onLocationChange={handleLocationChange} />
         </VStack>
 
         {/* Photo Capture Component */}

@@ -148,14 +148,14 @@ const LocationMap: React.FC<LocationMapProps> = ({
           attributionPosition={{ bottom: 8, left: 8 }}
           compassEnabled={true}
           compassViewPosition={1}
-          zoomEnabled={false}
+          zoomEnabled={true}
           scrollEnabled={false}
           pitchEnabled={true}
           rotateEnabled={true}
         >
           <Camera
             ref={cameraRef}
-            zoomLevel={19}
+            zoomLevel={16}
             centerCoordinate={[userLocation.longitude, userLocation.latitude]}
             animationMode="flyTo"
             animationDuration={1000}

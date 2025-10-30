@@ -20,6 +20,7 @@ export interface Translations {
     denied: Translation;
     error: Translation;
     unavailable: Translation;
+    change: Translation;
   };
 
   // Map
@@ -140,6 +141,10 @@ export const translations: Translations = {
     unavailable: {
       en: "Location unavailable",
       hi: "स्थान अनुपलब्ध",
+    },
+    change: {
+      en: "Change",
+      hi: "बदलें",
     },
   },
 

@@ -1,4 +1,5 @@
 import { router } from "expo-router";
+import { ChevronLeft } from "lucide-react-native";
 import React from "react";
 import { Platform, StatusBar, TouchableOpacity } from "react-native";
 import { Box } from "./ui/box";
@@ -46,11 +47,7 @@ const BackHeader: React.FC<BackHeaderProps> = ({ title }) => {
             alignItems: "center",
           }}
         >
-          <Icon
-            as={() => <Text className="text-2xl text-typography-900">←</Text>}
-            size="xl"
-            className="text-typography-900"
-          />
+          <Icon as={ChevronLeft} size="xl" className="text-typography-900" />
         </TouchableOpacity>
 
         {/* Title */}
