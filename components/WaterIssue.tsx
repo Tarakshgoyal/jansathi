@@ -3,8 +3,13 @@ import React, { useState } from "react";
 import { ScrollView } from "react-native";
 import LocationMap from "./LocationMap";
 import PhotoCapture from "./PhotoCapture";
-import { Heading } from "./ui/heading";
-import { Text } from "./ui/text";
+import { Button, ButtonText } from "./ui/button";
+import {
+  FormControl,
+  FormControlLabel,
+  FormControlLabelText,
+} from "./ui/form-control";
+import { Textarea, TextareaInput } from "./ui/textarea";
 import { VStack } from "./ui/vstack";
 
 interface WaterIssueProps {
@@ -20,6 +25,7 @@ const WaterIssue: React.FC<WaterIssueProps> = () => {
   const { getText, t } = useLanguage();
   const [location, setLocation] = useState<LocationCoords | null>(null);
   const [photos, setPhotos] = useState<string[]>([]);
+  const [description, setDescription] = useState<string>("");
 
   const handleLocationChange = (coords: LocationCoords) => {
     setLocation(coords);
@@ -31,35 +37,56 @@ const WaterIssue: React.FC<WaterIssueProps> = () => {
     console.log("Water Issue Photos:", newPhotos);
   };
 
+  const handleSubmit = () => {
+    // TODO: Implement form submission logic
+    console.log("Submitting Water Issue:", {
+      description,
+      location,
+      photos,
+    });
+  };
+
   return (
-    <ScrollView className="flex-1 bg-background-0">
-      <VStack className="flex-1 p-4" space="lg">
-        <VStack space="sm">
-          <Heading size="xl" className="text-typography-900">
-            {getText(t.issueTypes.jalSamasya)}
-          </Heading>
-          <Text size="sm" className="text-typography-500">
-            Report water-related issues in your area
-          </Text>
+    <ScrollView className="flex-1 bg-background-50">
+      <VStack className="flex-1 p-4" space="2xl">
+        {/* Issue Details Form */}
+        <VStack space="md">
+          {/* Description Field */}
+          <FormControl isRequired>
+            <FormControlLabel>
+              <FormControlLabelText className="text-typography-700 font-bold">
+                {getText(t.form.description)}
+              </FormControlLabelText>
+            </FormControlLabel>
+            <Textarea size="md" className="min-h-32 bg-white">
+              <TextareaInput
+                placeholder={getText(t.form.descriptionPlaceholder)}
+                value={description}
+                onChangeText={setDescription}
+                className="text-typography-900"
+                placeholderTextColor="#0000"
+              />
+            </Textarea>
+          </FormControl>
         </VStack>
 
         {/* Map Component */}
         <VStack space="sm">
-          <Text size="md" className="text-typography-700 font-medium">
-            Location
-          </Text>
           <LocationMap height={300} onLocationChange={handleLocationChange} />
         </VStack>
 
         {/* Photo Capture Component */}
         <PhotoCapture maxPhotos={3} onPhotosChange={handlePhotosChange} />
 
-        {/* Water issue form will be added here */}
-        <VStack space="sm">
-          <Text size="sm" className="text-typography-500 text-center py-8">
-            Form fields coming soon...
-          </Text>
-        </VStack>
+        {/* Submit Button */}
+        <Button
+          action="primary"
+          size="lg"
+          onPress={handleSubmit}
+          className="w-full rounded-md"
+        >
+          <ButtonText>{getText(t.actions.submit)}</ButtonText>
+        </Button>
       </VStack>
     </ScrollView>
   );

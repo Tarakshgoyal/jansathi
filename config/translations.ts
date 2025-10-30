@@ -92,6 +92,17 @@ export interface Translations {
     maxPhotosReached: Translation;
   };
 
+  // Form Fields
+  form: {
+    title: Translation;
+    titlePlaceholder: Translation;
+    description: Translation;
+    descriptionPlaceholder: Translation;
+    required: Translation;
+    optional: Translation;
+    issueDetails: Translation;
+  };
+
   // Common Actions
   actions: {
     submit: Translation;
@@ -338,6 +349,38 @@ export const translations: Translations = {
     maxPhotosReached: {
       en: "Maximum 3 photos allowed",
       hi: "अधिकतम 3 फोटो की अनुमति है",
+    },
+  },
+
+  // Form Fields
+  form: {
+    title: {
+      en: "Title",
+      hi: "शीर्षक",
+    },
+    titlePlaceholder: {
+      en: "Enter a brief title for the issue",
+      hi: "समस्या के लिए संक्षिप्त शीर्षक दर्ज करें",
+    },
+    description: {
+      en: "Description",
+      hi: "विवरण",
+    },
+    descriptionPlaceholder: {
+      en: "Describe the issue in detail",
+      hi: "समस्या का विस्तार से वर्णन करें",
+    },
+    required: {
+      en: "Required",
+      hi: "आवश्यक",
+    },
+    optional: {
+      en: "Optional",
+      hi: "वैकल्पिक",
+    },
+    issueDetails: {
+      en: "Issue Details",
+      hi: "समस्या विवरण",
     },
   },
 

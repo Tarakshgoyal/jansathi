@@ -142,20 +142,20 @@ const LocationMap: React.FC<LocationMapProps> = ({
       <View style={{ height }}>
         <MapView
           style={{ flex: 1 }}
-          mapStyle={mapStyle}
+          mapStyle="https://tiles.openfreemap.org/styles/bright"
           logoEnabled={false}
-          attributionEnabled={true}
+          attributionEnabled={false}
           attributionPosition={{ bottom: 8, left: 8 }}
           compassEnabled={true}
           compassViewPosition={1}
-          zoomEnabled={true}
-          scrollEnabled={true}
+          zoomEnabled={false}
+          scrollEnabled={false}
           pitchEnabled={true}
           rotateEnabled={true}
         >
           <Camera
             ref={cameraRef}
-            zoomLevel={15}
+            zoomLevel={19}
             centerCoordinate={[userLocation.longitude, userLocation.latitude]}
             animationMode="flyTo"
             animationDuration={1000}

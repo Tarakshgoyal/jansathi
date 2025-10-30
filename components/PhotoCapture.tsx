@@ -119,7 +119,7 @@ const PhotoCapture: React.FC<PhotoCaptureProps> = ({
     return (
       <VStack className="bg-background-50 p-4 rounded-lg" space="md">
         <VStack space="sm">
-          <Text size="md" className="text-typography-700 font-medium">
+          <Text size="md" className="text-typography-700 font-bold">
             {getText(t.camera.attachPhotos)}
           </Text>
           <Text size="sm" className="text-typography-500">
@@ -130,7 +130,7 @@ const PhotoCapture: React.FC<PhotoCaptureProps> = ({
           action="primary"
           size="md"
           onPress={requestPermission}
-          className="w-full"
+          className="w-full rounded-md"
         >
           <ButtonText>{getText(t.camera.grantPermission)}</ButtonText>
         </Button>

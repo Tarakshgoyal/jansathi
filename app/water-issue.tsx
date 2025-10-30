@@ -1,16 +1,20 @@
+import BackHeader from "@/components/BackHeader";
 import WaterIssue from "@/components/WaterIssue";
 import { Stack } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function WaterIssuePage() {
   return (
     <>
       <Stack.Screen
         options={{
-          title: "Water Issue",
-          headerShown: true,
+          headerShown: false,
         }}
       />
-      <WaterIssue />
+      <SafeAreaView style={{ flex: 1 }} className="bg-background-0">
+        <BackHeader title="Water Issue" />
+        <WaterIssue />
+      </SafeAreaView>
     </>
   );
 }
