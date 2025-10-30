@@ -2,6 +2,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import React, { useState } from "react";
 import { ScrollView } from "react-native";
 import LocationMap from "./LocationMap";
+import PhotoCapture from "./PhotoCapture";
 import { Heading } from "./ui/heading";
 import { Text } from "./ui/text";
 import { VStack } from "./ui/vstack";
@@ -18,10 +19,16 @@ interface LocationCoords {
 const WaterIssue: React.FC<WaterIssueProps> = () => {
   const { getText, t } = useLanguage();
   const [location, setLocation] = useState<LocationCoords | null>(null);
+  const [photos, setPhotos] = useState<string[]>([]);
 
   const handleLocationChange = (coords: LocationCoords) => {
     setLocation(coords);
     console.log("Water Issue Location:", coords);
+  };
+
+  const handlePhotosChange = (newPhotos: string[]) => {
+    setPhotos(newPhotos);
+    console.log("Water Issue Photos:", newPhotos);
   };
 
   return (
@@ -43,6 +50,9 @@ const WaterIssue: React.FC<WaterIssueProps> = () => {
           </Text>
           <LocationMap height={300} onLocationChange={handleLocationChange} />
         </VStack>
+
+        {/* Photo Capture Component */}
+        <PhotoCapture maxPhotos={3} onPhotosChange={handlePhotosChange} />
 
         {/* Water issue form will be added here */}
         <VStack space="sm">

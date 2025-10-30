@@ -73,6 +73,25 @@ export interface Translations {
     selectLanguage: Translation;
   };
 
+  // Camera/Photo
+  camera: {
+    cameraPermission: Translation;
+    cameraPermissionDenied: Translation;
+    cameraPermissionInstructions: Translation;
+    grantPermission: Translation;
+    takePhoto: Translation;
+    retakePhoto: Translation;
+    removePhoto: Translation;
+    addPhoto: Translation;
+    photoAttached: Translation;
+    flipCamera: Translation;
+    capturePhoto: Translation;
+    photos: Translation;
+    attachPhotos: Translation;
+    attachPhotosDesc: Translation;
+    maxPhotosReached: Translation;
+  };
+
   // Common Actions
   actions: {
     submit: Translation;
@@ -255,6 +274,70 @@ export const translations: Translations = {
     selectLanguage: {
       en: "Select Language",
       hi: "भाषा चुनें",
+    },
+  },
+
+  // Camera/Photo
+  camera: {
+    cameraPermission: {
+      en: "We need your permission to use the camera",
+      hi: "हमें कैमरा उपयोग करने के लिए आपकी अनुमति चाहिए",
+    },
+    cameraPermissionDenied: {
+      en: "Camera permission denied",
+      hi: "कैमरा अनुमति अस्वीकृत",
+    },
+    cameraPermissionInstructions: {
+      en: "Please enable camera access in your device settings",
+      hi: "कृपया अपने डिवाइस सेटिंग्स में कैमरा एक्सेस सक्षम करें",
+    },
+    grantPermission: {
+      en: "Grant Permission",
+      hi: "अनुमति दें",
+    },
+    takePhoto: {
+      en: "Take Photo",
+      hi: "फोटो लें",
+    },
+    retakePhoto: {
+      en: "Retake Photo",
+      hi: "फिर से फोटो लें",
+    },
+    removePhoto: {
+      en: "Remove Photo",
+      hi: "फोटो हटाएं",
+    },
+    addPhoto: {
+      en: "Add Photo",
+      hi: "फोटो जोड़ें",
+    },
+    photoAttached: {
+      en: "Photo Attached",
+      hi: "फोटो संलग्न है",
+    },
+    flipCamera: {
+      en: "Flip Camera",
+      hi: "कैमरा पलटें",
+    },
+    capturePhoto: {
+      en: "Capture Photo",
+      hi: "फोटो कैप्चर करें",
+    },
+    photos: {
+      en: "Photos",
+      hi: "फोटो",
+    },
+    attachPhotos: {
+      en: "Attach Photos",
+      hi: "फोटो संलग्न करें",
+    },
+    attachPhotosDesc: {
+      en: "Add photos of the issue (up to 3)",
+      hi: "समस्या की फोटो जोड़ें (अधिकतम 3)",
+    },
+    maxPhotosReached: {
+      en: "Maximum 3 photos allowed",
+      hi: "अधिकतम 3 फोटो की अनुमति है",
     },
   },
 
