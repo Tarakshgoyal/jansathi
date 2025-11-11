@@ -4,6 +4,8 @@ import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "expo-router";
 import * as Location from "expo-location";
 import { Bell, MapPin, User } from "lucide-react-native";
 import { useEffect, useState } from "react";
@@ -11,8 +13,18 @@ import { Pressable, View } from "react-native";
 
 export const Header = () => {
   const { t, getText } = useLanguage();
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
   const [location, setLocation] = useState<string>("");
   const [isLoadingLocation, setIsLoadingLocation] = useState<boolean>(true);
+
+  const handleProfilePress = () => {
+    if (isAuthenticated) {
+      router.push('/profile' as any);
+    } else {
+      router.push('/login' as any);
+    }
+  };
 
   useEffect(() => {
     const getLocation = async () => {
@@ -88,6 +100,7 @@ export const Header = () => {
             <Bell size={20} className="text-typography-white" />
           </Pressable>
           <Pressable
+            onPress={handleProfilePress}
             className="border border-white/20 rounded-full p-3 bg-white/10 active:opacity-70"
             style={{ minWidth: 44, minHeight: 44 }}
           >

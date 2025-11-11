@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import "@/global.css";
 
 // Keep the splash screen visible while we fetch resources
@@ -56,9 +57,11 @@ export default function RootLayout() {
 
   return (
     <GluestackUIProvider mode="light">
-      <LanguageProvider>
-        <Stack screenOptions={{ headerShown: false }} />
-      </LanguageProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <Stack screenOptions={{ headerShown: false }} />
+        </LanguageProvider>
+      </AuthProvider>
     </GluestackUIProvider>
   );
 }

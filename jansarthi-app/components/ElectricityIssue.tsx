@@ -1,6 +1,9 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { apiService } from "@/services/api";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, Alert } from "react-native";
 import LocationMap from "./LocationMap";
 import PhotoCapture from "./PhotoCapture";
 import { Button, ButtonText } from "./ui/button";
@@ -11,6 +14,7 @@ import {
 } from "./ui/form-control";
 import { Textarea, TextareaInput } from "./ui/textarea";
 import { VStack } from "./ui/vstack";
+import { Text } from "./ui/text";
 
 interface ElectricityIssueProps {
   // Props will be added later
@@ -23,9 +27,13 @@ interface LocationCoords {
 
 const ElectricityIssue: React.FC<ElectricityIssueProps> = () => {
   const { getText, t } = useLanguage();
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
   const [location, setLocation] = useState<LocationCoords | null>(null);
   const [photos, setPhotos] = useState<string[]>([]);
   const [description, setDescription] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleLocationChange = (coords: LocationCoords) => {
     setLocation(coords);
@@ -37,13 +45,70 @@ const ElectricityIssue: React.FC<ElectricityIssueProps> = () => {
     console.log("Electricity Issue Photos:", newPhotos);
   };
 
-  const handleSubmit = () => {
-    // TODO: Implement form submission logic
-    console.log("Submitting Electricity Issue:", {
-      description,
-      location,
-      photos,
-    });
+  const handleSubmit = async () => {
+    try {
+      setError(null);
+
+      // Check authentication
+      if (!isAuthenticated) {
+        router.push('/login' as any);
+        return;
+      }
+
+      // Validate form
+      if (!description.trim()) {
+        setError("Please provide a description");
+        return;
+      }
+
+      if (!location) {
+        setError("Please select a location on the map");
+        return;
+      }
+
+      setIsSubmitting(true);
+
+      // Prepare photos for upload
+      const photoData = photos.map((uri, index) => ({
+        uri,
+        name: `electricity_issue_${Date.now()}_${index}.jpg`,
+        type: 'image/jpeg',
+      }));
+
+      // Create issue via API
+      const issue = await apiService.createIssue({
+        issue_type: 'electricity',
+        description: description.trim(),
+        latitude: location.latitude,
+        longitude: location.longitude,
+        photos: photoData.length > 0 ? photoData : undefined,
+      });
+
+      console.log("Electricity issue created successfully:", issue);
+
+      // Show success message
+      Alert.alert(
+        "Success",
+        "Electricity issue reported successfully!",
+        [
+          {
+            text: "OK",
+            onPress: () => router.back(),
+          },
+        ]
+      );
+
+      // Reset form
+      setDescription("");
+      setPhotos([]);
+    } catch (err) {
+      console.error("Failed to submit electricity issue:", err);
+      const errorMessage = err instanceof Error ? err.message : "Failed to submit issue";
+      setError(errorMessage);
+      Alert.alert("Error", errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -78,14 +143,22 @@ const ElectricityIssue: React.FC<ElectricityIssueProps> = () => {
         {/* Photo Capture Component */}
         <PhotoCapture maxPhotos={3} onPhotosChange={handlePhotosChange} />
 
+        {/* Error Message */}
+        {error && (
+          <Text className="text-red-500 text-center">{error}</Text>
+        )}
+
         {/* Submit Button */}
         <Button
           action="primary"
           size="lg"
           onPress={handleSubmit}
+          isDisabled={isSubmitting}
           className="w-full rounded-md"
         >
-          <ButtonText>{getText(t.actions.submit)}</ButtonText>
+          <ButtonText>
+            {isSubmitting ? "Submitting..." : getText(t.actions.submit)}
+          </ButtonText>
         </Button>
       </VStack>
     </ScrollView>

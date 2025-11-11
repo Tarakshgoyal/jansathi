@@ -10,30 +10,40 @@ import {
   ActionsheetDragIndicatorWrapper,
 } from "@/components/ui/actionsheet";
 import { Box } from "@/components/ui/box";
+import { Button, ButtonText } from "@/components/ui/button";
 import { Grid, GridItem } from "@/components/ui/grid";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { HStack } from "@/components/ui/hstack";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "expo-router";
 import {
   Construction,
   Droplet,
   Eye,
+  LogOut,
   Map,
   Plus,
   Trash2,
+  User,
   Zap,
 } from "lucide-react-native";
 import { useState } from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, View, ActivityIndicator } from "react-native";
 
 export const MainMenu = () => {
   const { t, getText } = useLanguage();
+  const { isAuthenticated, isLoading, user, logout } = useAuth();
   const router = useRouter();
   const [showIssueTypeSheet, setShowIssueTypeSheet] = useState(false);
 
   const handleCreateReport = () => {
+    if (!isAuthenticated) {
+      router.push('/login' as any);
+      return;
+    }
     setShowIssueTypeSheet(true);
   };
 
@@ -59,15 +69,23 @@ export const MainMenu = () => {
   };
 
   const handleViewReports = () => {
-    // Navigate to my reports screen
-    // router.push('/my-reports');
-    console.log("Navigate to my reports");
+    if (!isAuthenticated) {
+      router.push('/login' as any);
+      return;
+    }
+    router.push('/my-reports' as any);
   };
 
   const handleViewMap = () => {
-    // Navigate to map screen
-    // router.push('/map');
-    console.log("Navigate to map");
+    if (!isAuthenticated) {
+      router.push('/login' as any);
+      return;
+    }
+    router.push('/map-view' as any);
+  };
+
+  const handleLogout = async () => {
+    await logout();
   };
 
   const handleJalSamasya = () => {
@@ -85,6 +103,15 @@ export const MainMenu = () => {
   const handleKachraSamasya = () => {
     handleIssueTypeSelect("garbage");
   };
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-white">
+        <ActivityIndicator size="large" color="#2563eb" />
+        <Text className="mt-4 text-gray-600">Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView className="flex-1">
