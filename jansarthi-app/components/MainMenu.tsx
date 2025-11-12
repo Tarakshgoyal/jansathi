@@ -3,41 +3,44 @@ import { IssueTypeCard } from "@/components/IssueTypeCard";
 import { MenuCard } from "@/components/MenuCard";
 import { QuickActionItem } from "@/components/QuickActionItem";
 import {
-  Actionsheet,
-  ActionsheetBackdrop,
-  ActionsheetContent,
-  ActionsheetDragIndicator,
-  ActionsheetDragIndicatorWrapper,
+    Actionsheet,
+    ActionsheetBackdrop,
+    ActionsheetContent,
+    ActionsheetDragIndicator,
+    ActionsheetDragIndicatorWrapper,
 } from "@/components/ui/actionsheet";
 import { Box } from "@/components/ui/box";
-import { Button, ButtonText } from "@/components/ui/button";
 import { Grid, GridItem } from "@/components/ui/grid";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import { HStack } from "@/components/ui/hstack";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useRouter } from "expo-router";
 import {
-  Construction,
-  Droplet,
-  Eye,
-  LogOut,
-  Map,
-  Plus,
-  Trash2,
-  User,
-  Zap,
+    Construction,
+    Droplet,
+    Eye,
+    Map,
+    Plus,
+    Trash2,
+    Zap
 } from "lucide-react-native";
-import { useState } from "react";
-import { ScrollView, View, ActivityIndicator } from "react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 
 export const MainMenu = () => {
   const { t, getText } = useLanguage();
   const { isAuthenticated, isLoading, user, logout } = useAuth();
   const router = useRouter();
   const [showIssueTypeSheet, setShowIssueTypeSheet] = useState(false);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace('/login' as any);
+    }
+  }, [isAuthenticated, isLoading]);
 
   const handleCreateReport = () => {
     if (!isAuthenticated) {

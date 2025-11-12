@@ -1,6 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
+// const API_BASE_URL = "https://api.surakshit.world";
 
 // Token management
 export const TOKEN_KEYS = {
