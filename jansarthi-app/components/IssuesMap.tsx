@@ -1,31 +1,33 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
-import {
-  Camera,
-  MapView,
-  PointAnnotation,
-  UserLocation,
-} from "@maplibre/maplibre-react-native";
-import * as Location from "expo-location";
-import { VStack } from '@/components/ui/vstack';
-import { HStack } from '@/components/ui/hstack';
-import { Text } from '@/components/ui/text';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
+import { HStack } from '@/components/ui/hstack';
+import { Text } from '@/components/ui/text';
+import { VStack } from '@/components/ui/vstack';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { apiService, Issue } from '@/services/api';
-import { Droplet, Zap, Construction, Trash2, RefreshCw } from 'lucide-react-native';
+import {
+    Camera,
+    MapView,
+    PointAnnotation,
+    UserLocation,
+} from "@maplibre/maplibre-react-native";
+import * as Location from "expo-location";
+import { useRouter } from 'expo-router';
+import { Construction, Droplet, RefreshCw, Trash2, Zap } from 'lucide-react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, TouchableOpacity, View } from 'react-native';
 
 interface IssuesMapProps {}
 
 const IssuesMap: React.FC<IssuesMapProps> = () => {
   const { isAuthenticated } = useAuth();
+  const { t, language, getText } = useLanguage();
   const router = useRouter();
   const cameraRef = useRef<any>(null);
   const [issues, setIssues] = useState<Issue[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [loadingMessage, setLoadingMessage] = useState('Initializing map...');
+  const [loadingMessage, setLoadingMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
@@ -40,10 +42,10 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
   }, []);
 
   const initializeMap = async () => {
-    setLoadingMessage('Getting your location...');
+    setLoadingMessage(getText(t.issuesMap.gettingLocation));
     await requestLocationAccess();
     // Load issues after we have location
-    setLoadingMessage('Loading nearby issues...');
+    setLoadingMessage(getText(t.issuesMap.loadingIssues));
     await loadIssues();
   };
 
@@ -66,13 +68,13 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
         
         return currentLocation;
       } else {
-        setError("Location permission denied. Please enable location access to view issues.");
+        setError(getText(t.issuesMap.locationRequiredMessage));
         setIsLoading(false);
         return null;
       }
     } catch (err) {
       console.error("Error getting location:", err);
-      setError("Failed to get your location. Please check your location settings.");
+      setError(getText(t.map.locationError));
       setIsLoading(false);
       return null;
     }
@@ -95,7 +97,7 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
 
       // If still no location, show error and return
       if (!searchLocation) {
-        setError("Cannot load issues without location. Please enable location services.");
+        setError(getText(t.issuesMap.locationRequiredMessage));
         setIsLoading(false);
         return;
       }
@@ -213,13 +215,13 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
   const getIssueTypeLabel = (issueType: string) => {
     switch (issueType) {
       case 'water':
-        return 'Water Issue';
+        return getText(t.issueTypes.jalSamasya);
       case 'electricity':
-        return 'Electricity Issue';
+        return getText(t.issueTypes.bijliSamasya);
       case 'road':
-        return 'Road Issue';
+        return getText(t.issueTypes.sadakSamasya);
       case 'garbage':
-        return 'Garbage Issue';
+        return getText(t.issueTypes.kachraSamasya);
       default:
         return issueType;
     }
@@ -228,13 +230,13 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'reported':
-        return 'Reported';
+        return getText(t.status.reported);
       case 'pradhan_check':
-        return 'Pradhan Check';
+        return getText(t.status.pradhanCheck);
       case 'started_working':
-        return 'Started Working';
+        return getText(t.status.startedWorking);
       case 'finished_work':
-        return 'Finished Work';
+        return getText(t.status.finishedWork);
       default:
         return status;
     }
@@ -242,7 +244,7 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(language === 'hi' ? 'hi-IN' : 'en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
@@ -264,7 +266,7 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
       <View className="flex-1 justify-center items-center bg-background-50 p-6">
         <Text className="text-2xl mb-4">📍</Text>
         <Text className="text-red-600 text-center font-semibold mb-2">
-          Location Required
+          {getText(t.issuesMap.locationRequired)}
         </Text>
         <Text className="text-gray-600 text-center mb-6">
           {error}
@@ -274,7 +276,7 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
           onPress={initializeMap}
           className="bg-blue-600"
         >
-          <ButtonText>Try Again</ButtonText>
+          <ButtonText>{getText(t.actions.tryAgain)}</ButtonText>
         </Button>
       </View>
     );
@@ -367,7 +369,7 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
           {/* Issue Counter */}
           <Box className="bg-white px-4 py-2 rounded-full shadow-lg">
             <Text className="font-semibold text-gray-800">
-              {filteredIssues.length} of {issues.length} issue{issues.length !== 1 ? 's' : ''}
+              {filteredIssues.length} {getText(t.issuesMap.of)} {issues.length} {issues.length !== 1 ? getText(t.issuesMap.issues) : getText(t.issuesMap.issue)}
             </Text>
           </Box>
 
@@ -382,7 +384,7 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
                 <Text className={`ml-2 text-sm font-medium ${
                   selectedFilters.includes('water') ? 'text-white' : 'text-gray-700'
                 }`}>
-                  Water
+                  {getText(t.issuesMap.water)}
                 </Text>
               </Box>
             </TouchableOpacity>
@@ -396,7 +398,7 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
                 <Text className={`ml-2 text-sm font-medium ${
                   selectedFilters.includes('electricity') ? 'text-white' : 'text-gray-700'
                 }`}>
-                  Electricity
+                  {getText(t.issuesMap.electricity)}
                 </Text>
               </Box>
             </TouchableOpacity>
@@ -410,7 +412,7 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
                 <Text className={`ml-2 text-sm font-medium ${
                   selectedFilters.includes('road') ? 'text-white' : 'text-gray-700'
                 }`}>
-                  Road
+                  {getText(t.issuesMap.road)}
                 </Text>
               </Box>
             </TouchableOpacity>
@@ -424,7 +426,7 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
                 <Text className={`ml-2 text-sm font-medium ${
                   selectedFilters.includes('garbage') ? 'text-white' : 'text-gray-700'
                 }`}>
-                  Garbage
+                  {getText(t.issuesMap.garbage)}
                 </Text>
               </Box>
             </TouchableOpacity>
@@ -444,7 +446,7 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
                     {getIssueTypeLabel(selectedIssue.issue_type)}
                   </Text>
                   <Text className="text-sm text-gray-500">
-                    Status: {getStatusLabel(selectedIssue.status)}
+                    {getText(t.issuesMap.status)}: {getStatusLabel(selectedIssue.status)}
                   </Text>
                 </VStack>
               </HStack>

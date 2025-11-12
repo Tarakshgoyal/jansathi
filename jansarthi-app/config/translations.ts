@@ -114,6 +114,124 @@ export interface Translations {
     back: Translation;
     next: Translation;
     save: Translation;
+    refresh: Translation;
+    tryAgain: Translation;
+    logout: Translation;
+  };
+
+  // Auth Pages
+  auth: {
+    login: {
+      title: Translation;
+      subtitle: Translation;
+      mobileNumber: Translation;
+      mobileNumberPlaceholder: Translation;
+      sendOtp: Translation;
+      sendingOtp: Translation;
+      dontHaveAccount: Translation;
+      signUp: Translation;
+      enterMobileNumber: Translation;
+    };
+    signup: {
+      title: Translation;
+      subtitle: Translation;
+      fullName: Translation;
+      fullNamePlaceholder: Translation;
+      mobileNumber: Translation;
+      mobileNumberPlaceholder: Translation;
+      signUp: Translation;
+      creatingAccount: Translation;
+      alreadyHaveAccount: Translation;
+      login: Translation;
+      enterName: Translation;
+      enterMobileNumber: Translation;
+    };
+    verifyOtp: {
+      title: Translation;
+      subtitle: Translation;
+      otpExpiresIn: Translation;
+      minutes: Translation;
+      enterOtpPlaceholder: Translation;
+      verifyOtp: Translation;
+      verifying: Translation;
+      resendOtpIn: Translation;
+      resendOtp: Translation;
+      changeNumber: Translation;
+      enterOtp: Translation;
+      otpMustBe6Digits: Translation;
+    };
+  };
+
+  // Profile Page
+  profile: {
+    title: Translation;
+    loadingProfile: Translation;
+    failedToLoad: Translation;
+    noUserData: Translation;
+    verifiedAccount: Translation;
+    accountInformation: Translation;
+    mobileNumber: Translation;
+    memberSince: Translation;
+    refreshProfile: Translation;
+    refreshing: Translation;
+    logout: Translation;
+    logoutConfirm: Translation;
+    logoutConfirmMessage: Translation;
+    logoutButton: Translation;
+  };
+
+  // My Reports Page
+  myReports: {
+    title: Translation;
+    loadingReports: Translation;
+    noReports: Translation;
+    noReportsMessage: Translation;
+    reportedOn: Translation;
+    lastUpdated: Translation;
+  };
+
+  // Report Detail Page
+  reportDetail: {
+    title: Translation;
+    loadingDetails: Translation;
+    reportNotFound: Translation;
+    progressStatus: Translation;
+    description: Translation;
+    attachedPhotos: Translation;
+    reportInformation: Translation;
+    reportedOn: Translation;
+    lastUpdated: Translation;
+  };
+
+  // Issues Map Page
+  issuesMap: {
+    title: Translation;
+    initializingMap: Translation;
+    gettingLocation: Translation;
+    loadingIssues: Translation;
+    locationRequired: Translation;
+    locationRequiredMessage: Translation;
+    issuesCount: Translation;
+    issue: Translation;
+    issues: Translation;
+    of: Translation;
+    filters: Translation;
+    water: Translation;
+    electricity: Translation;
+    road: Translation;
+    garbage: Translation;
+    status: Translation;
+  };
+
+  // Status Labels
+  status: {
+    reported: Translation;
+    pradhanCheck: Translation;
+    startedWorking: Translation;
+    finishedWork: Translation;
+    pradhan: Translation;
+    pwdClerkStartedWorking: Translation;
+    finishedWorking: Translation;
   };
 }
 
@@ -422,6 +540,388 @@ export const translations: Translations = {
     save: {
       en: "Save",
       hi: "सहेजें",
+    },
+    refresh: {
+      en: "Refresh",
+      hi: "रीफ्रेश करें",
+    },
+    tryAgain: {
+      en: "Try Again",
+      hi: "फिर से प्रयास करें",
+    },
+    logout: {
+      en: "Logout",
+      hi: "लॉगआउट",
+    },
+  },
+
+  // Auth Pages
+  auth: {
+    login: {
+      title: {
+        en: "Welcome Back",
+        hi: "वापसी पर स्वागत है",
+      },
+      subtitle: {
+        en: "Enter your mobile number to login",
+        hi: "लॉगिन करने के लिए अपना मोबाइल नंबर दर्ज करें",
+      },
+      mobileNumber: {
+        en: "Mobile Number",
+        hi: "मोबाइल नंबर",
+      },
+      mobileNumberPlaceholder: {
+        en: "Mobile Number",
+        hi: "मोबाइल नंबर",
+      },
+      sendOtp: {
+        en: "Send OTP",
+        hi: "OTP भेजें",
+      },
+      sendingOtp: {
+        en: "Sending OTP...",
+        hi: "OTP भेजा जा रहा है...",
+      },
+      dontHaveAccount: {
+        en: "Don't have an account?",
+        hi: "खाता नहीं है?",
+      },
+      signUp: {
+        en: "Sign Up",
+        hi: "साइन अप करें",
+      },
+      enterMobileNumber: {
+        en: "Please enter your mobile number",
+        hi: "कृपया अपना मोबाइल नंबर दर्ज करें",
+      },
+    },
+    signup: {
+      title: {
+        en: "Create Account",
+        hi: "खाता बनाएं",
+      },
+      subtitle: {
+        en: "Enter your details to get started",
+        hi: "शुरू करने के लिए अपना विवरण दर्ज करें",
+      },
+      fullName: {
+        en: "Full Name",
+        hi: "पूरा नाम",
+      },
+      fullNamePlaceholder: {
+        en: "Full Name",
+        hi: "पूरा नाम",
+      },
+      mobileNumber: {
+        en: "Mobile Number",
+        hi: "मोबाइल नंबर",
+      },
+      mobileNumberPlaceholder: {
+        en: "Mobile Number",
+        hi: "मोबाइल नंबर",
+      },
+      signUp: {
+        en: "Sign Up",
+        hi: "साइन अप करें",
+      },
+      creatingAccount: {
+        en: "Creating Account...",
+        hi: "खाता बनाया जा रहा है...",
+      },
+      alreadyHaveAccount: {
+        en: "Already have an account?",
+        hi: "पहले से खाता है?",
+      },
+      login: {
+        en: "Login",
+        hi: "लॉगिन करें",
+      },
+      enterName: {
+        en: "Please enter your name",
+        hi: "कृपया अपना नाम दर्ज करें",
+      },
+      enterMobileNumber: {
+        en: "Please enter your mobile number",
+        hi: "कृपया अपना मोबाइल नंबर दर्ज करें",
+      },
+    },
+    verifyOtp: {
+      title: {
+        en: "Verify OTP",
+        hi: "OTP सत्यापित करें",
+      },
+      subtitle: {
+        en: "Enter the 6-digit code sent to",
+        hi: "भेजा गया 6 अंकों का कोड दर्ज करें",
+      },
+      otpExpiresIn: {
+        en: "OTP expires in",
+        hi: "OTP समाप्त होगा",
+      },
+      minutes: {
+        en: "minutes",
+        hi: "मिनट में",
+      },
+      enterOtpPlaceholder: {
+        en: "Enter 6-digit OTP",
+        hi: "6 अंकों का OTP दर्ज करें",
+      },
+      verifyOtp: {
+        en: "Verify OTP",
+        hi: "OTP सत्यापित करें",
+      },
+      verifying: {
+        en: "Verifying...",
+        hi: "सत्यापित हो रहा है...",
+      },
+      resendOtpIn: {
+        en: "Resend OTP in",
+        hi: "OTP फिर से भेजें",
+      },
+      resendOtp: {
+        en: "Resend OTP",
+        hi: "OTP फिर से भेजें",
+      },
+      changeNumber: {
+        en: "Change Number",
+        hi: "नंबर बदलें",
+      },
+      enterOtp: {
+        en: "Please enter the OTP",
+        hi: "कृपया OTP दर्ज करें",
+      },
+      otpMustBe6Digits: {
+        en: "OTP must be 6 digits",
+        hi: "OTP 6 अंकों का होना चाहिए",
+      },
+    },
+  },
+
+  // Profile Page
+  profile: {
+    title: {
+      en: "Profile",
+      hi: "प्रोफाइल",
+    },
+    loadingProfile: {
+      en: "Loading profile...",
+      hi: "प्रोफाइल लोड हो रहा है...",
+    },
+    failedToLoad: {
+      en: "Failed to Load Profile",
+      hi: "प्रोफाइल लोड करने में विफल",
+    },
+    noUserData: {
+      en: "No user data available",
+      hi: "कोई उपयोगकर्ता डेटा उपलब्ध नहीं",
+    },
+    verifiedAccount: {
+      en: "Verified Account",
+      hi: "सत्यापित खाता",
+    },
+    accountInformation: {
+      en: "Account Information",
+      hi: "खाता जानकारी",
+    },
+    mobileNumber: {
+      en: "Mobile Number",
+      hi: "मोबाइल नंबर",
+    },
+    memberSince: {
+      en: "Member Since",
+      hi: "सदस्य बने",
+    },
+    refreshProfile: {
+      en: "Refresh Profile",
+      hi: "प्रोफाइल रीफ्रेश करें",
+    },
+    refreshing: {
+      en: "Refreshing...",
+      hi: "रीफ्रेश हो रहा है...",
+    },
+    logout: {
+      en: "Logout",
+      hi: "लॉगआउट",
+    },
+    logoutConfirm: {
+      en: "Logout",
+      hi: "लॉगआउट",
+    },
+    logoutConfirmMessage: {
+      en: "Are you sure you want to logout?",
+      hi: "क्या आप वाकई लॉगआउट करना चाहते हैं?",
+    },
+    logoutButton: {
+      en: "Logout",
+      hi: "लॉगआउट",
+    },
+  },
+
+  // My Reports Page
+  myReports: {
+    title: {
+      en: "My Reports",
+      hi: "मेरी रिपोर्ट्स",
+    },
+    loadingReports: {
+      en: "Loading your reports...",
+      hi: "आपकी रिपोर्ट लोड हो रही हैं...",
+    },
+    noReports: {
+      en: "No Reports Yet",
+      hi: "अभी तक कोई रिपोर्ट नहीं",
+    },
+    noReportsMessage: {
+      en: "You haven't submitted any issue reports yet.",
+      hi: "आपने अभी तक कोई समस्या रिपोर्ट सबमिट नहीं की है।",
+    },
+    reportedOn: {
+      en: "Reported On",
+      hi: "रिपोर्ट की तारीख",
+    },
+    lastUpdated: {
+      en: "Last Updated",
+      hi: "अंतिम अपडेट",
+    },
+  },
+
+  // Report Detail Page
+  reportDetail: {
+    title: {
+      en: "Report Details",
+      hi: "रिपोर्ट विवरण",
+    },
+    loadingDetails: {
+      en: "Loading report details...",
+      hi: "रिपोर्ट विवरण लोड हो रहा है...",
+    },
+    reportNotFound: {
+      en: "Report not found",
+      hi: "रिपोर्ट नहीं मिली",
+    },
+    progressStatus: {
+      en: "Progress Status",
+      hi: "प्रगति स्थिति",
+    },
+    description: {
+      en: "Description",
+      hi: "विवरण",
+    },
+    attachedPhotos: {
+      en: "Attached Photos",
+      hi: "संलग्न फोटो",
+    },
+    reportInformation: {
+      en: "Report Information",
+      hi: "रिपोर्ट जानकारी",
+    },
+    reportedOn: {
+      en: "Reported On",
+      hi: "रिपोर्ट की तारीख",
+    },
+    lastUpdated: {
+      en: "Last Updated",
+      hi: "अंतिम अपडेट",
+    },
+  },
+
+  // Issues Map Page
+  issuesMap: {
+    title: {
+      en: "Issues Map",
+      hi: "समस्याओं का मानचित्र",
+    },
+    initializingMap: {
+      en: "Initializing map...",
+      hi: "मानचित्र आरंभ हो रहा है...",
+    },
+    gettingLocation: {
+      en: "Getting your location...",
+      hi: "आपका स्थान प्राप्त हो रहा है...",
+    },
+    loadingIssues: {
+      en: "Loading nearby issues...",
+      hi: "पास की समस्याएं लोड हो रही हैं...",
+    },
+    locationRequired: {
+      en: "Location Required",
+      hi: "स्थान आवश्यक है",
+    },
+    locationRequiredMessage: {
+      en: "Location permission denied. Please enable location access to view issues.",
+      hi: "स्थान अनुमति अस्वीकृत। समस्याएं देखने के लिए कृपया स्थान पहुंच सक्षम करें।",
+    },
+    issuesCount: {
+      en: "issues",
+      hi: "समस्याएं",
+    },
+    issue: {
+      en: "issue",
+      hi: "समस्या",
+    },
+    issues: {
+      en: "issues",
+      hi: "समस्याएं",
+    },
+    of: {
+      en: "of",
+      hi: "में से",
+    },
+    filters: {
+      en: "Filters",
+      hi: "फ़िल्टर",
+    },
+    water: {
+      en: "Water",
+      hi: "जल",
+    },
+    electricity: {
+      en: "Electricity",
+      hi: "बिजली",
+    },
+    road: {
+      en: "Road",
+      hi: "सड़क",
+    },
+    garbage: {
+      en: "Garbage",
+      hi: "कचरा",
+    },
+    status: {
+      en: "Status",
+      hi: "स्थिति",
+    },
+  },
+
+  // Status Labels
+  status: {
+    reported: {
+      en: "Reported",
+      hi: "रिपोर्ट की गई",
+    },
+    pradhanCheck: {
+      en: "Pradhan Check",
+      hi: "प्रधान जांच",
+    },
+    startedWorking: {
+      en: "Started Working",
+      hi: "काम शुरू हुआ",
+    },
+    finishedWork: {
+      en: "Finished Work",
+      hi: "काम पूरा हुआ",
+    },
+    pradhan: {
+      en: "Pradhan",
+      hi: "प्रधान",
+    },
+    pwdClerkStartedWorking: {
+      en: "PWD/Clerk\nStarted Working",
+      hi: "PWD/क्लर्क\nकाम शुरू",
+    },
+    finishedWorking: {
+      en: "Finished\nWorking",
+      hi: "काम\nपूरा हुआ",
     },
   },
 };

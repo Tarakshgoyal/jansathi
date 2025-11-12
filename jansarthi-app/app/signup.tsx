@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
-import { View } from 'react-native';
-import { router } from 'expo-router';
-import { VStack } from '@/components/ui/vstack';
-import { Heading } from '@/components/ui/heading';
-import { Text } from '@/components/ui/text';
-import { Input, InputField } from '@/components/ui/input';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Button, ButtonText } from '@/components/ui/button';
 import { FormControl } from '@/components/ui/form-control';
+import { Heading } from '@/components/ui/heading';
+import { Input, InputField } from '@/components/ui/input';
+import { Text } from '@/components/ui/text';
+import { VStack } from '@/components/ui/vstack';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
+import { View } from 'react-native';
 
 export default function SignupScreen() {
   const { signup, isLoading, error, clearError } = useAuth();
+  const { t, getText } = useLanguage();
   const [name, setName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [localError, setLocalError] = useState('');
@@ -22,11 +25,11 @@ export default function SignupScreen() {
 
       // Basic validation
       if (!name.trim()) {
-        setLocalError('Please enter your name');
+        setLocalError(getText(t.auth.signup.enterName));
         return;
       }
       if (!mobileNumber.trim()) {
-        setLocalError('Please enter your mobile number');
+        setLocalError(getText(t.auth.signup.enterMobileNumber));
         return;
       }
 
@@ -51,23 +54,36 @@ export default function SignupScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white px-6">
-      <VStack space="xl" className="flex-1 justify-center">
-        <VStack space="md" className="items-center mb-8">
-          <Heading size="2xl" className="text-center">
-            Create Account
+    <View className="flex-1 bg-brand-500">
+      {/* Header Section with Brand Color */}
+      <View className="pt-16 pb-8 px-6">
+        {/* Language Switcher */}
+        <View className="absolute top-12 right-6 z-10">
+          <LanguageSwitcher />
+        </View>
+
+        <VStack space="md" className="items-center mt-20">
+          <Heading size="3xl" className="text-typography-white text-center font-bold">
+            {getText(t.auth.signup.title)}
           </Heading>
-          <Text size="md" className="text-gray-600 text-center">
-            Enter your details to get started
+          <Text size="md" className="text-typography-white text-center opacity-90">
+            {getText(t.auth.signup.subtitle)}
           </Text>
         </VStack>
+      </View>
 
-        <VStack space="lg">
+      {/* Content Card */}
+      <View className="flex-1 bg-background-0 rounded-t-3xl px-6 pt-8">
+        <VStack space="lg" className="flex-1">
           <FormControl isInvalid={!!localError || !!error}>
             <VStack space="md">
-              <Input variant="outline" size="lg">
+              <Input 
+                variant="outline" 
+                size="lg"
+                className="bg-background-50 border-outline-200"
+              >
                 <InputField
-                  placeholder="Full Name"
+                  placeholder={getText(t.auth.signup.fullNamePlaceholder)}
                   value={name}
                   onChangeText={(text) => {
                     setName(text);
@@ -75,12 +91,17 @@ export default function SignupScreen() {
                     clearError();
                   }}
                   autoFocus
+                  className="text-typography-900"
                 />
               </Input>
 
-              <Input variant="outline" size="lg">
+              <Input 
+                variant="outline" 
+                size="lg"
+                className="bg-background-50 border-outline-200"
+              >
                 <InputField
-                  placeholder="Mobile Number"
+                  placeholder={getText(t.auth.signup.mobileNumberPlaceholder)}
                   keyboardType="phone-pad"
                   value={mobileNumber}
                   onChangeText={(text) => {
@@ -88,11 +109,12 @@ export default function SignupScreen() {
                     setLocalError('');
                     clearError();
                   }}
+                  className="text-typography-900"
                 />
               </Input>
 
               {(localError || error) && (
-                <Text size="sm" className="text-red-500">
+                <Text size="sm" className="text-error-500">
                   {localError || error}
                 </Text>
               )}
@@ -103,25 +125,29 @@ export default function SignupScreen() {
             size="lg"
             onPress={handleSignup}
             isDisabled={isLoading}
-            className="bg-blue-600"
+            className="bg-brand-500 rounded-lg shadow-sm"
           >
-            <ButtonText>{isLoading ? 'Creating Account...' : 'Sign Up'}</ButtonText>
+            <ButtonText className="text-typography-white font-semibold">
+              {isLoading ? getText(t.auth.signup.creatingAccount) : getText(t.auth.signup.signUp)}
+            </ButtonText>
           </Button>
 
-          <View className="flex-row justify-center items-center mt-4">
-            <Text size="sm" className="text-gray-600">
-              Already have an account?{' '}
+          <View className="flex-row justify-center items-center mt-2">
+            <Text size="sm" className="text-typography-500">
+              {getText(t.auth.signup.alreadyHaveAccount)}{' '}
             </Text>
             <Button
               variant="link"
               size="sm"
               onPress={() => router.push('/login')}
             >
-              <ButtonText className="text-blue-600">Login</ButtonText>
+              <ButtonText className="text-brand-500 font-semibold">
+                {getText(t.auth.signup.login)}
+              </ButtonText>
             </Button>
           </View>
         </VStack>
-      </VStack>
+      </View>
     </View>
   );
 }

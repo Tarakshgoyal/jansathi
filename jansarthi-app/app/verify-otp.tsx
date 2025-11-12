@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { View } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { VStack } from '@/components/ui/vstack';
-import { HStack } from '@/components/ui/hstack';
-import { Heading } from '@/components/ui/heading';
-import { Text } from '@/components/ui/text';
-import { Input, InputField } from '@/components/ui/input';
 import { Button, ButtonText } from '@/components/ui/button';
 import { FormControl } from '@/components/ui/form-control';
+import { Heading } from '@/components/ui/heading';
+import { Input, InputField } from '@/components/ui/input';
+import { Text } from '@/components/ui/text';
+import { VStack } from '@/components/ui/vstack';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { View } from 'react-native';
 
 export default function VerifyOTPScreen() {
   const { verifyOTP, resendOTP, isLoading, error, clearError } = useAuth();
+  const { getText, t } = useLanguage();
   const params = useLocalSearchParams<{
     mobile_number: string;
     expires_in: string;
@@ -42,11 +43,11 @@ export default function VerifyOTPScreen() {
 
       // Basic validation
       if (!otpCode.trim()) {
-        setLocalError('Please enter the OTP');
+        setLocalError(getText(t.auth.verifyOtp.enterOtp));
         return;
       }
       if (otpCode.length !== 6) {
-        setLocalError('OTP must be 6 digits');
+        setLocalError(getText(t.auth.verifyOtp.otpMustBe6Digits));
         return;
       }
 
@@ -80,29 +81,37 @@ export default function VerifyOTPScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white px-6">
-      <VStack space="xl" className="flex-1 justify-center">
-        <VStack space="md" className="items-center mb-8">
-          <Heading size="2xl" className="text-center">
-            Verify OTP
+    <View className="flex-1 bg-brand-500">
+      {/* Header Section with Brand Color */}
+      <View className="pt-16 pb-8 px-6">
+        <VStack space="md" className="items-center mt-8">
+          <Heading size="3xl" className="text-typography-white text-center font-bold">
+            {getText(t.auth.verifyOtp.title)}
           </Heading>
-          <Text size="md" className="text-gray-600 text-center">
-            Enter the 6-digit code sent to
+          <Text size="md" className="text-typography-white text-center opacity-90">
+            {getText(t.auth.verifyOtp.subtitle)}
           </Text>
-          <Text size="md" className="font-semibold text-center">
+          <Text size="lg" className="text-typography-white font-semibold text-center">
             {params.mobile_number}
           </Text>
-          <Text size="sm" className="text-gray-500 text-center mt-2">
-            OTP expires in {params.expires_in} minutes
+          <Text size="sm" className="text-typography-white text-center opacity-80 mt-2">
+            {getText(t.auth.verifyOtp.otpExpiresIn)} {params.expires_in} {getText(t.auth.verifyOtp.minutes)}
           </Text>
         </VStack>
+      </View>
 
-        <VStack space="lg">
+      {/* Content Card */}
+      <View className="flex-1 bg-background-0 rounded-t-3xl px-6 pt-8">
+        <VStack space="lg" className="flex-1">
           <FormControl isInvalid={!!localError || !!error}>
             <VStack space="sm">
-              <Input variant="outline" size="lg">
+              <Input 
+                variant="outline" 
+                size="lg"
+                className="bg-background-50 border-outline-200"
+              >
                 <InputField
-                  placeholder="Enter 6-digit OTP"
+                  placeholder={getText(t.auth.verifyOtp.enterOtpPlaceholder)}
                   keyboardType="number-pad"
                   maxLength={6}
                   value={otpCode}
@@ -113,11 +122,11 @@ export default function VerifyOTPScreen() {
                   }}
                   autoFocus
                   textAlign="center"
-                  className="text-2xl tracking-widest"
+                  className="text-2xl tracking-widest text-typography-900"
                 />
               </Input>
               {(localError || error) && (
-                <Text size="sm" className="text-red-500 text-center">
+                <Text size="sm" className="text-error-500 text-center">
                   {localError || error}
                 </Text>
               )}
@@ -128,15 +137,17 @@ export default function VerifyOTPScreen() {
             size="lg"
             onPress={handleVerifyOTP}
             isDisabled={isLoading || otpCode.length !== 6}
-            className="bg-blue-600"
+            className="bg-brand-500 rounded-lg shadow-sm"
           >
-            <ButtonText>{isLoading ? 'Verifying...' : 'Verify OTP'}</ButtonText>
+            <ButtonText className="text-typography-white font-semibold">
+              {isLoading ? getText(t.auth.verifyOtp.verifying) : getText(t.auth.verifyOtp.verifyOtp)}
+            </ButtonText>
           </Button>
 
           <VStack space="sm" className="items-center mt-4">
             {!canResend ? (
-              <Text size="sm" className="text-gray-600">
-                Resend OTP in {resendTimer}s
+              <Text size="sm" className="text-typography-500">
+                {getText(t.auth.verifyOtp.resendOtpIn)} {resendTimer}s
               </Text>
             ) : (
               <Button
@@ -145,7 +156,9 @@ export default function VerifyOTPScreen() {
                 onPress={handleResendOTP}
                 isDisabled={isLoading}
               >
-                <ButtonText className="text-blue-600">Resend OTP</ButtonText>
+                <ButtonText className="text-brand-500 font-semibold">
+                  {getText(t.auth.verifyOtp.resendOtp)}
+                </ButtonText>
               </Button>
             )}
           </VStack>
@@ -154,12 +167,14 @@ export default function VerifyOTPScreen() {
             variant="outline"
             size="md"
             onPress={() => router.back()}
-            className="mt-4"
+            className="mt-4 border-outline-200"
           >
-            <ButtonText>Change Number</ButtonText>
+            <ButtonText className="text-typography-900">
+              {getText(t.auth.verifyOtp.changeNumber)}
+            </ButtonText>
           </Button>
         </VStack>
-      </VStack>
+      </View>
     </View>
   );
 }

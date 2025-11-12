@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, RefreshControl, View, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
-import { VStack } from '@/components/ui/vstack';
-import { HStack } from '@/components/ui/hstack';
-import { Heading } from '@/components/ui/heading';
-import { Text } from '@/components/ui/text';
 import { Box } from '@/components/ui/box';
+import { Heading } from '@/components/ui/heading';
+import { HStack } from '@/components/ui/hstack';
+import { Text } from '@/components/ui/text';
+import { VStack } from '@/components/ui/vstack';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { apiService, Issue } from '@/services/api';
-import { Droplet, Zap, Construction, Trash2, MapPin, Calendar } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { Calendar, Construction, Droplet, MapPin, Trash2, Zap } from 'lucide-react-native';
+import React, { useEffect, useState } from 'react';
+import { RefreshControl, ScrollView, TouchableOpacity, View } from 'react-native';
 
 interface MyReportsProps {}
 
@@ -18,11 +19,13 @@ interface StatusTrackerProps {
 }
 
 const StatusTracker: React.FC<StatusTrackerProps> = ({ currentStatus, createdAt }) => {
+  const { t, language, getText } = useLanguage();
+
   const stages = [
-    { key: 'reported', label: 'Reported' },
-    { key: 'pradhan_check', label: 'Pradhan' },
-    { key: 'started_working', label: 'PWD/Clerk\nStarted Working' },
-    { key: 'finished_work', label: 'Finished\nWorking' },
+    { key: 'reported', label: getText(t.status.reported) },
+    { key: 'pradhan_check', label: getText(t.status.pradhan) },
+    { key: 'started_working', label: getText(t.status.pwdClerkStartedWorking) },
+    { key: 'finished_work', label: getText(t.status.finishedWorking) },
   ];
 
   const getCurrentStageIndex = () => {
@@ -33,7 +36,7 @@ const StatusTracker: React.FC<StatusTrackerProps> = ({ currentStatus, createdAt 
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(language === 'hi' ? 'hi-IN' : 'en-US', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -104,6 +107,7 @@ const StatusTracker: React.FC<StatusTrackerProps> = ({ currentStatus, createdAt 
 
 const MyReports: React.FC<MyReportsProps> = () => {
   const { isAuthenticated } = useAuth();
+  const { t, language, getText } = useLanguage();
   const router = useRouter();
   const [issues, setIssues] = useState<Issue[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -166,13 +170,13 @@ const MyReports: React.FC<MyReportsProps> = () => {
   const getIssueTypeLabel = (issueType: string) => {
     switch (issueType) {
       case 'water':
-        return 'Water Issue';
+        return getText(t.issueTypes.jalSamasya);
       case 'electricity':
-        return 'Electricity Issue';
+        return getText(t.issueTypes.bijliSamasya);
       case 'road':
-        return 'Road Issue';
+        return getText(t.issueTypes.sadakSamasya);
       case 'garbage':
-        return 'Garbage Issue';
+        return getText(t.issueTypes.kachraSamasya);
       default:
         return issueType;
     }
@@ -196,13 +200,13 @@ const MyReports: React.FC<MyReportsProps> = () => {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'reported':
-        return 'Reported';
+        return getText(t.status.reported);
       case 'pradhan_check':
-        return 'Pradhan Check';
+        return getText(t.status.pradhanCheck);
       case 'started_working':
-        return 'Started Working';
+        return getText(t.status.startedWorking);
       case 'finished_work':
-        return 'Finished Work';
+        return getText(t.status.finishedWork);
       default:
         return status;
     }
@@ -210,7 +214,7 @@ const MyReports: React.FC<MyReportsProps> = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(language === 'hi' ? 'hi-IN' : 'en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
@@ -220,7 +224,7 @@ const MyReports: React.FC<MyReportsProps> = () => {
   if (isLoading) {
     return (
       <View className="flex-1 justify-center items-center bg-background-50">
-        <Text className="text-gray-600">Loading your reports...</Text>
+        <Text className="text-gray-600">{getText(t.myReports.loadingReports)}</Text>
       </View>
     );
   }
@@ -243,10 +247,10 @@ const MyReports: React.FC<MyReportsProps> = () => {
           <Box className="p-8 bg-white rounded-lg items-center">
             <MapPin size={48} color="#d1d5db" />
             <Heading size="md" className="text-gray-600 mt-4 mb-2">
-              No Reports Yet
+              {getText(t.myReports.noReports)}
             </Heading>
             <Text className="text-gray-500 text-center">
-              You haven't submitted any issue reports yet.
+              {getText(t.myReports.noReportsMessage)}
             </Text>
           </Box>
         ) : (

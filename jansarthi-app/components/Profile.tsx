@@ -1,20 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, View, ActivityIndicator, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
-import { VStack } from '@/components/ui/vstack';
-import { HStack } from '@/components/ui/hstack';
-import { Heading } from '@/components/ui/heading';
-import { Text } from '@/components/ui/text';
 import { Box } from '@/components/ui/box';
 import { Button, ButtonText } from '@/components/ui/button';
+import { Heading } from '@/components/ui/heading';
+import { HStack } from '@/components/ui/hstack';
+import { Text } from '@/components/ui/text';
+import { VStack } from '@/components/ui/vstack';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { apiService } from '@/services/api';
-import { User, Phone, Calendar, CheckCircle, LogOut, RefreshCw } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { Calendar, CheckCircle, LogOut, Phone, RefreshCw, User } from 'lucide-react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, ScrollView, View } from 'react-native';
 
 interface ProfileProps {}
 
 const Profile: React.FC<ProfileProps> = () => {
   const { isAuthenticated, logout, user: cachedUser } = useAuth();
+  const { t, language, getText } = useLanguage();
   const router = useRouter();
   const [user, setUser] = useState(cachedUser);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,15 +55,15 @@ const Profile: React.FC<ProfileProps> = () => {
 
   const handleLogout = () => {
     Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
+      getText(t.profile.logoutConfirm),
+      getText(t.profile.logoutConfirmMessage),
       [
         {
-          text: 'Cancel',
+          text: getText(t.actions.cancel),
           style: 'cancel',
         },
         {
-          text: 'Logout',
+          text: getText(t.profile.logoutButton),
           style: 'destructive',
           onPress: async () => {
             await logout();
@@ -74,7 +76,7 @@ const Profile: React.FC<ProfileProps> = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(language === 'hi' ? 'hi-IN' : 'en-US', {
       month: 'long',
       day: 'numeric',
       year: 'numeric',
@@ -85,7 +87,7 @@ const Profile: React.FC<ProfileProps> = () => {
     return (
       <View className="flex-1 justify-center items-center bg-background-50">
         <ActivityIndicator size="large" color="#3b82f6" />
-        <Text className="mt-4 text-gray-600">Loading profile...</Text>
+        <Text className="mt-4 text-gray-600">{getText(t.profile.loadingProfile)}</Text>
       </View>
     );
   }
@@ -95,11 +97,11 @@ const Profile: React.FC<ProfileProps> = () => {
       <View className="flex-1 justify-center items-center bg-background-50 p-6">
         <Text className="text-2xl mb-4">⚠️</Text>
         <Text className="text-red-600 text-center font-semibold mb-2">
-          Failed to Load Profile
+          {getText(t.profile.failedToLoad)}
         </Text>
         <Text className="text-gray-600 text-center mb-6">{error}</Text>
         <Button size="md" onPress={loadUserProfile} className="bg-blue-600">
-          <ButtonText>Try Again</ButtonText>
+          <ButtonText>{getText(t.actions.tryAgain)}</ButtonText>
         </Button>
       </View>
     );
@@ -108,7 +110,7 @@ const Profile: React.FC<ProfileProps> = () => {
   if (!user) {
     return (
       <View className="flex-1 justify-center items-center bg-background-50">
-        <Text className="text-gray-600">No user data available</Text>
+        <Text className="text-gray-600">{getText(t.profile.noUserData)}</Text>
       </View>
     );
   }
@@ -137,7 +139,7 @@ const Profile: React.FC<ProfileProps> = () => {
             {user.is_verified && (
               <HStack space="xs" className="items-center">
                 <CheckCircle size={16} color="#22c55e" />
-                <Text className="text-sm text-green-600">Verified Account</Text>
+                <Text className="text-sm text-green-600">{getText(t.profile.verifiedAccount)}</Text>
               </HStack>
             )}
           </VStack>
@@ -148,7 +150,7 @@ const Profile: React.FC<ProfileProps> = () => {
           <VStack space="lg">
             <VStack space="xs">
               <Text className="text-sm text-gray-500 uppercase font-semibold">
-                Account Information
+                {getText(t.profile.accountInformation)}
               </Text>
             </VStack>
 
@@ -158,7 +160,7 @@ const Profile: React.FC<ProfileProps> = () => {
                 <Phone size={20} color="#3b82f6" />
               </View>
               <VStack className="flex-1" space="xs">
-                <Text className="text-xs text-gray-500">Mobile Number</Text>
+                <Text className="text-xs text-gray-500">{getText(t.profile.mobileNumber)}</Text>
                 <Text className="text-base font-semibold text-gray-900">
                   {user.mobile_number}
                 </Text>
@@ -171,7 +173,7 @@ const Profile: React.FC<ProfileProps> = () => {
                 <Calendar size={20} color="#22c55e" />
               </View>
               <VStack className="flex-1" space="xs">
-                <Text className="text-xs text-gray-500">Member Since</Text>
+                <Text className="text-xs text-gray-500">{getText(t.profile.memberSince)}</Text>
                 <Text className="text-base font-semibold text-gray-900">
                   {formatDate(user.created_at)}
                 </Text>
@@ -199,7 +201,7 @@ const Profile: React.FC<ProfileProps> = () => {
             <HStack space="sm" className="items-center">
               <RefreshCw size={20} color="#3b82f6" />
               <ButtonText className="text-blue-600">
-                {isRefreshing ? 'Refreshing...' : 'Refresh Profile'}
+                {isRefreshing ? getText(t.profile.refreshing) : getText(t.profile.refreshProfile)}
               </ButtonText>
             </HStack>
           </Button>
@@ -211,7 +213,7 @@ const Profile: React.FC<ProfileProps> = () => {
           >
             <HStack space="sm" className="items-center">
               <LogOut size={20} color="#ffffff" />
-              <ButtonText>Logout</ButtonText>
+              <ButtonText>{getText(t.profile.logout)}</ButtonText>
             </HStack>
           </Button>
         </VStack>

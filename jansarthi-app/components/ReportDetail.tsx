@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, View, Image, Dimensions, ActivityIndicator } from 'react-native';
-import { VStack } from '@/components/ui/vstack';
-import { HStack } from '@/components/ui/hstack';
-import { Heading } from '@/components/ui/heading';
-import { Text } from '@/components/ui/text';
 import { Box } from '@/components/ui/box';
+import { Heading } from '@/components/ui/heading';
+import { HStack } from '@/components/ui/hstack';
+import { Text } from '@/components/ui/text';
+import { VStack } from '@/components/ui/vstack';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { apiService, Issue } from '@/services/api';
-import { Droplet, Zap, Construction, Trash2, MapPin, Calendar, User } from 'lucide-react-native';
 import { Camera, MapView, PointAnnotation } from '@maplibre/maplibre-react-native';
+import { Calendar, Construction, Droplet, MapPin, Trash2, Zap } from 'lucide-react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Dimensions, Image, ScrollView, View } from 'react-native';
 
 interface ReportDetailProps {
   issueId: number;
@@ -19,11 +20,13 @@ interface StatusTrackerProps {
 }
 
 const StatusTracker: React.FC<StatusTrackerProps> = ({ currentStatus, createdAt }) => {
+  const { t, language, getText } = useLanguage();
+
   const stages = [
-    { key: 'reported', label: 'Reported' },
-    { key: 'pradhan_check', label: 'Pradhan' },
-    { key: 'started_working', label: 'PWD/Clerk\nStarted Working' },
-    { key: 'finished_work', label: 'Finished\nWorking' },
+    { key: 'reported', label: getText(t.status.reported) },
+    { key: 'pradhan_check', label: getText(t.status.pradhan) },
+    { key: 'started_working', label: getText(t.status.pwdClerkStartedWorking) },
+    { key: 'finished_work', label: getText(t.status.finishedWorking) },
   ];
 
   const getCurrentStageIndex = () => {
@@ -34,7 +37,7 @@ const StatusTracker: React.FC<StatusTrackerProps> = ({ currentStatus, createdAt 
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(language === 'hi' ? 'hi-IN' : 'en-US', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -104,6 +107,7 @@ const StatusTracker: React.FC<StatusTrackerProps> = ({ currentStatus, createdAt 
 };
 
 const ReportDetail: React.FC<ReportDetailProps> = ({ issueId }) => {
+  const { t, language, getText } = useLanguage();
   const [issue, setIssue] = useState<Issue | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -145,13 +149,13 @@ const ReportDetail: React.FC<ReportDetailProps> = ({ issueId }) => {
   const getIssueTypeLabel = (issueType: string) => {
     switch (issueType) {
       case 'water':
-        return 'Water Issue';
+        return getText(t.issueTypes.jalSamasya);
       case 'electricity':
-        return 'Electricity Issue';
+        return getText(t.issueTypes.bijliSamasya);
       case 'road':
-        return 'Road Issue';
+        return getText(t.issueTypes.sadakSamasya);
       case 'garbage':
-        return 'Garbage Issue';
+        return getText(t.issueTypes.kachraSamasya);
       default:
         return issueType;
     }
@@ -175,13 +179,13 @@ const ReportDetail: React.FC<ReportDetailProps> = ({ issueId }) => {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'reported':
-        return 'Reported';
+        return getText(t.status.reported);
       case 'pradhan_check':
-        return 'Pradhan Check';
+        return getText(t.status.pradhanCheck);
       case 'started_working':
-        return 'Started Working';
+        return getText(t.status.startedWorking);
       case 'finished_work':
-        return 'Finished Work';
+        return getText(t.status.finishedWork);
       default:
         return status;
     }
@@ -189,7 +193,7 @@ const ReportDetail: React.FC<ReportDetailProps> = ({ issueId }) => {
 
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
+    return date.toLocaleString(language === 'hi' ? 'hi-IN' : 'en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
@@ -203,7 +207,7 @@ const ReportDetail: React.FC<ReportDetailProps> = ({ issueId }) => {
     return (
       <View className="flex-1 justify-center items-center bg-background-50">
         <ActivityIndicator size="large" color="#10b981" />
-        <Text className="text-gray-600 mt-4">Loading report details...</Text>
+        <Text className="text-gray-600 mt-4">{getText(t.reportDetail.loadingDetails)}</Text>
       </View>
     );
   }
@@ -212,7 +216,7 @@ const ReportDetail: React.FC<ReportDetailProps> = ({ issueId }) => {
     return (
       <View className="flex-1 justify-center items-center bg-background-50 p-4">
         <MapPin size={48} color="#ef4444" />
-        <Text className="text-red-600 mt-4 text-center">{error || 'Report not found'}</Text>
+        <Text className="text-red-600 mt-4 text-center">{error || getText(t.reportDetail.reportNotFound)}</Text>
       </View>
     );
   }
@@ -274,7 +278,7 @@ const ReportDetail: React.FC<ReportDetailProps> = ({ issueId }) => {
         {/* Status Progress */}
         <Box className="bg-white p-4 shadow-sm">
           <Heading size="md" className="text-typography-900 mb-2">
-            Progress Status
+            {getText(t.reportDetail.progressStatus)}
           </Heading>
           <StatusTracker 
             currentStatus={issue.status} 
@@ -285,7 +289,7 @@ const ReportDetail: React.FC<ReportDetailProps> = ({ issueId }) => {
         {/* Description */}
         <Box className="bg-white p-4 shadow-sm">
           <Heading size="md" className="text-typography-900 mb-3">
-            Description
+            {getText(t.reportDetail.description)}
           </Heading>
           <Text className="text-gray-700 leading-6">
             {issue.description}
@@ -295,7 +299,7 @@ const ReportDetail: React.FC<ReportDetailProps> = ({ issueId }) => {
         {issue.photos && issue.photos.length > 0 && (
           <Box className="bg-white p-4 shadow-sm">
             <Heading size="md" className="text-typography-900 mb-3">
-              Attached Photos ({issue.photos.length})
+              {getText(t.reportDetail.attachedPhotos)} ({issue.photos.length})
             </Heading>
             <VStack space="md">
               {issue.photos.map((photo) => (
@@ -322,13 +326,13 @@ const ReportDetail: React.FC<ReportDetailProps> = ({ issueId }) => {
         {/* Report Information */}
         <Box className="bg-white p-4 shadow-sm mb-4">
           <Heading size="md" className="text-typography-900 mb-3">
-            Report Information
+            {getText(t.reportDetail.reportInformation)}
           </Heading>
           <VStack space="md">
             <HStack className="items-center" space="sm">
               <Calendar size={18} color="#6b7280" />
               <VStack className="flex-1">
-                <Text className="text-xs text-gray-500">Reported On</Text>
+                <Text className="text-xs text-gray-500">{getText(t.reportDetail.reportedOn)}</Text>
                 <Text className="text-gray-800 font-medium">
                   {formatDateTime(issue.created_at)}
                 </Text>
@@ -337,7 +341,7 @@ const ReportDetail: React.FC<ReportDetailProps> = ({ issueId }) => {
             <HStack className="items-center" space="sm">
               <Calendar size={18} color="#6b7280" />
               <VStack className="flex-1">
-                <Text className="text-xs text-gray-500">Last Updated</Text>
+                <Text className="text-xs text-gray-500">{getText(t.reportDetail.lastUpdated)}</Text>
                 <Text className="text-gray-800 font-medium">
                   {formatDateTime(issue.updated_at)}
                 </Text>
