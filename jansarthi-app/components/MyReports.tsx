@@ -145,8 +145,7 @@ const MyReports: React.FC<MyReportsProps> = () => {
   };
 
   const handleIssuePress = (issueId: number) => {
-    // TODO: Navigate to issue detail screen
-    console.log('View issue:', issueId);
+    router.push(`/report-detail?id=${issueId}` as any);
   };
 
   const getIssueIcon = (issueType: string) => {
