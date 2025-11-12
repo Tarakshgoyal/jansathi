@@ -29,6 +29,7 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>(['water', 'electricity', 'road', 'garbage']); // All selected by default
 
   // Default center coordinates (will be updated with user location)
   const [centerCoordinate, setCenterCoordinate] = useState<[number, number]>([0, 0]);
@@ -148,6 +149,23 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
   const handleCloseDetail = () => {
     setSelectedIssue(null);
   };
+
+  const toggleFilter = (issueType: string) => {
+    setSelectedFilters(prev => {
+      if (prev.includes(issueType)) {
+        // Remove filter
+        return prev.filter(type => type !== issueType);
+      } else {
+        // Add filter
+        return [...prev, issueType];
+      }
+    });
+  };
+
+  // Filter issues based on selected filters
+  const filteredIssues = issues.filter(issue => 
+    selectedFilters.includes(issue.issue_type)
+  );
 
   const getMarkerColor = (issueType: string, status: string) => {
     // Status colors take precedence
@@ -298,7 +316,7 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
         )}
 
         {/* Issue markers */}
-        {issues.map((issue) => (
+        {filteredIssues.map((issue) => (
           <PointAnnotation
             key={`issue-${issue.id}`}
             id={`issue-${issue.id}`}
@@ -343,13 +361,75 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
         </Button>
       </View>
 
-      {/* Issue Counter */}
+      {/* Issue Counter and Filters */}
       <View className="absolute top-4 left-4">
-        <Box className="bg-white px-4 py-2 rounded-full shadow-lg">
-          <Text className="font-semibold text-gray-800">
-            {issues.length} issue{issues.length !== 1 ? 's' : ''}
-          </Text>
-        </Box>
+        <VStack space="sm">
+          {/* Issue Counter */}
+          <Box className="bg-white px-4 py-2 rounded-full shadow-lg">
+            <Text className="font-semibold text-gray-800">
+              {filteredIssues.length} of {issues.length} issue{issues.length !== 1 ? 's' : ''}
+            </Text>
+          </Box>
+
+          {/* Filter Buttons */}
+          <VStack space="xs">
+            {/* Water Filter */}
+            <TouchableOpacity onPress={() => toggleFilter('water')}>
+              <Box className={`px-3 py-2 rounded-full shadow-md flex-row items-center ${
+                selectedFilters.includes('water') ? 'bg-blue-500' : 'bg-white'
+              }`}>
+                <Droplet size={16} color={selectedFilters.includes('water') ? '#FFFFFF' : '#3b82f6'} />
+                <Text className={`ml-2 text-sm font-medium ${
+                  selectedFilters.includes('water') ? 'text-white' : 'text-gray-700'
+                }`}>
+                  Water
+                </Text>
+              </Box>
+            </TouchableOpacity>
+
+            {/* Electricity Filter */}
+            <TouchableOpacity onPress={() => toggleFilter('electricity')}>
+              <Box className={`px-3 py-2 rounded-full shadow-md flex-row items-center ${
+                selectedFilters.includes('electricity') ? 'bg-yellow-500' : 'bg-white'
+              }`}>
+                <Zap size={16} color={selectedFilters.includes('electricity') ? '#FFFFFF' : '#eab308'} />
+                <Text className={`ml-2 text-sm font-medium ${
+                  selectedFilters.includes('electricity') ? 'text-white' : 'text-gray-700'
+                }`}>
+                  Electricity
+                </Text>
+              </Box>
+            </TouchableOpacity>
+
+            {/* Road Filter */}
+            <TouchableOpacity onPress={() => toggleFilter('road')}>
+              <Box className={`px-3 py-2 rounded-full shadow-md flex-row items-center ${
+                selectedFilters.includes('road') ? 'bg-red-500' : 'bg-white'
+              }`}>
+                <Construction size={16} color={selectedFilters.includes('road') ? '#FFFFFF' : '#ef4444'} />
+                <Text className={`ml-2 text-sm font-medium ${
+                  selectedFilters.includes('road') ? 'text-white' : 'text-gray-700'
+                }`}>
+                  Road
+                </Text>
+              </Box>
+            </TouchableOpacity>
+
+            {/* Garbage Filter */}
+            <TouchableOpacity onPress={() => toggleFilter('garbage')}>
+              <Box className={`px-3 py-2 rounded-full shadow-md flex-row items-center ${
+                selectedFilters.includes('garbage') ? 'bg-green-500' : 'bg-white'
+              }`}>
+                <Trash2 size={16} color={selectedFilters.includes('garbage') ? '#FFFFFF' : '#22c55e'} />
+                <Text className={`ml-2 text-sm font-medium ${
+                  selectedFilters.includes('garbage') ? 'text-white' : 'text-gray-700'
+                }`}>
+                  Garbage
+                </Text>
+              </Box>
+            </TouchableOpacity>
+          </VStack>
+        </VStack>
       </View>
 
       {/* Selected Issue Detail Card */}
