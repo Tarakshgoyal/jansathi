@@ -12,6 +12,96 @@ import { Droplet, Zap, Construction, Trash2, MapPin, Calendar } from 'lucide-rea
 
 interface MyReportsProps {}
 
+interface StatusTrackerProps {
+  currentStatus: string;
+  createdAt: string;
+}
+
+const StatusTracker: React.FC<StatusTrackerProps> = ({ currentStatus, createdAt }) => {
+  const stages = [
+    { key: 'reported', label: 'Reported' },
+    { key: 'pradhan_check', label: 'Pradhan' },
+    { key: 'started_working', label: 'PWD/Clerk\nStarted Working' },
+    { key: 'finished_work', label: 'Finished\nWorking' },
+  ];
+
+  const getCurrentStageIndex = () => {
+    return stages.findIndex(stage => stage.key === currentStatus);
+  };
+
+  const currentStageIndex = getCurrentStageIndex();
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  };
+
+  return (
+    <View className="mt-4 mb-2">
+      {/* Circles and Arrows Row */}
+      <View className="flex-row items-center justify-between px-2">
+        {stages.map((stage, index) => (
+          <React.Fragment key={stage.key}>
+            {/* Stage Circle */}
+            <View className="items-center" style={{ width: 48 }}>
+              <View
+                className={`w-12 h-12 rounded-full border-2 items-center justify-center ${
+                  index <= currentStageIndex
+                    ? 'bg-green-500 border-green-500'
+                    : 'bg-gray-300 border-gray-300'
+                }`}
+              >
+                <View className={`w-6 h-6 rounded-full ${
+                  index <= currentStageIndex ? 'bg-white' : 'bg-gray-400'
+                }`} />
+              </View>
+            </View>
+
+            {/* Connecting Arrow */}
+            {index < stages.length - 1 && (
+              <View className="flex-1 items-center" style={{ marginHorizontal: 4 }}>
+                <View className="flex-row items-center w-full">
+                  <View
+                    className={`h-0.5 flex-1 ${
+                      index < currentStageIndex ? 'bg-green-500' : 'bg-gray-300'
+                    }`}
+                  />
+                  <View
+                    className="w-0 h-0 border-l-8 border-y-4 border-y-transparent"
+                    style={{
+                      borderLeftColor: index < currentStageIndex ? '#22c55e' : '#d1d5db',
+                    }}
+                  />
+                </View>
+              </View>
+            )}
+          </React.Fragment>
+        ))}
+      </View>
+
+      {/* Labels Row */}
+      <View className="flex-row items-start justify-between px-2 mt-2">
+        {stages.map((stage, index) => (
+          <View key={`label-${stage.key}`} className="items-center" style={{ width: index < stages.length - 1 ? 80 : 70 }}>
+            <Text className="text-xs text-gray-700 text-center font-medium">
+              {stage.label}
+            </Text>
+            {index === 0 && (
+              <Text className="text-xs text-gray-500 mt-1">
+                {formatDate(createdAt)}
+              </Text>
+            )}
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+};
+
 const MyReports: React.FC<MyReportsProps> = () => {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
@@ -144,10 +234,6 @@ const MyReports: React.FC<MyReportsProps> = () => {
       }
     >
       <VStack className="flex-1 p-4" space="md">
-        <Heading size="xl" className="text-typography-900 mb-2">
-          My Reports
-        </Heading>
-
         {error && (
           <Box className="p-4 bg-red-50 rounded-lg mb-4">
             <Text className="text-red-600">{error}</Text>
@@ -194,13 +280,13 @@ const MyReports: React.FC<MyReportsProps> = () => {
                     </Box>
                   </HStack>
 
+                  {/* Status Tracker */}
+                  <StatusTracker 
+                    currentStatus={issue.status} 
+                    createdAt={issue.created_at}
+                  />
+
                   <HStack space="lg" className="mt-2">
-                    <HStack space="xs" className="items-center">
-                      <MapPin size={14} color="#6b7280" />
-                      <Text className="text-xs text-gray-500">
-                        {issue.latitude.toFixed(4)}, {issue.longitude.toFixed(4)}
-                      </Text>
-                    </HStack>
                     <HStack space="xs" className="items-center">
                       <Calendar size={14} color="#6b7280" />
                       <Text className="text-xs text-gray-500">
@@ -208,14 +294,6 @@ const MyReports: React.FC<MyReportsProps> = () => {
                       </Text>
                     </HStack>
                   </HStack>
-
-                  {issue.photos && issue.photos.length > 0 && (
-                    <HStack space="xs" className="mt-3">
-                      <Text className="text-xs text-gray-500">
-                        📷 {issue.photos.length} photo{issue.photos.length > 1 ? 's' : ''}
-                      </Text>
-                    </HStack>
-                  )}
                 </Box>
               </TouchableOpacity>
             ))}
