@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from sqlalchemy import Column, DateTime, func
+from sqlalchemy import Column, DateTime, Enum as SQLAEnum, func
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -18,11 +18,10 @@ class IssueType(str, Enum):
 class IssueStatus(str, Enum):
     """Enum for issue status"""
 
-    PENDING = "pending"
-    UNDER_REVIEW = "under_review"
-    IN_PROGRESS = "in_progress"
-    RESOLVED = "resolved"
-    REJECTED = "rejected"
+    REPORTED = "reported"
+    PRADHAN_CHECK = "pradhan_check"
+    STARTED_WORKING = "started_working"
+    FINISHED_WORK = "finished_work"
 
 
 class Issue(SQLModel, table=True):
@@ -31,7 +30,13 @@ class Issue(SQLModel, table=True):
     __tablename__ = "issues"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    issue_type: IssueType = Field(index=True)
+    issue_type: IssueType = Field(
+        sa_column=Column(
+            SQLAEnum(IssueType, values_callable=lambda x: [e.value for e in x]),
+            nullable=False,
+            index=True
+        )
+    )
     description: str = Field(min_length=10, max_length=2000)
 
     # Location data
@@ -39,7 +44,15 @@ class Issue(SQLModel, table=True):
     longitude: float = Field(ge=-180, le=180)
 
     # Status
-    status: IssueStatus = Field(default=IssueStatus.PENDING, index=True)
+    status: IssueStatus = Field(
+        default=IssueStatus.REPORTED,
+        sa_column=Column(
+            SQLAEnum(IssueStatus, values_callable=lambda x: [e.value for e in x]),
+            nullable=False,
+            index=True,
+            default=IssueStatus.REPORTED
+        )
+    )
 
     # User ID (for future auth implementation)
     user_id: Optional[int] = Field(default=None, foreign_key="users.id", index=True)
@@ -137,10 +150,14 @@ class OTP(SQLModel, table=True):
     attempt_count: int = Field(default=0)
     
     # Timestamps
-    expires_at: datetime = Field()
+    expires_at: datetime = Field(
+        sa_column=Column(DateTime(timezone=True), nullable=False)
+    )
     created_at: datetime = Field(
         sa_column=Column(
             DateTime(timezone=True), server_default=func.now(), nullable=False
         )
     )
-    used_at: Optional[datetime] = Field(default=None)
+    used_at: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), nullable=True)
+    )

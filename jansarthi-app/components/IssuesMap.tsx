@@ -149,18 +149,31 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
     setSelectedIssue(null);
   };
 
-  const getMarkerColor = (issueType: string) => {
-    switch (issueType) {
-      case 'water':
-        return '#3b82f6'; // blue
-      case 'electricity':
-        return '#eab308'; // yellow
-      case 'road':
+  const getMarkerColor = (issueType: string, status: string) => {
+    // Status colors take precedence
+    switch (status) {
+      case 'reported':
         return '#ef4444'; // red
-      case 'garbage':
+      case 'pradhan_check':
+        return '#eab308'; // yellow
+      case 'started_working':
         return '#22c55e'; // green
+      case 'finished_work':
+        return '#3b82f6'; // blue
       default:
-        return '#6b7280'; // gray
+        // Fallback to issue type colors if status doesn't match
+        switch (issueType) {
+          case 'water':
+            return '#3b82f6'; // blue
+          case 'electricity':
+            return '#eab308'; // yellow
+          case 'road':
+            return '#ef4444'; // red
+          case 'garbage':
+            return '#22c55e'; // green
+          default:
+            return '#6b7280'; // gray
+        }
     }
   };
 
@@ -196,14 +209,14 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'Pending';
-      case 'in_progress':
-        return 'In Progress';
-      case 'resolved':
-        return 'Resolved';
-      case 'rejected':
-        return 'Rejected';
+      case 'reported':
+        return 'Reported';
+      case 'pradhan_check':
+        return 'Pradhan Check';
+      case 'started_working':
+        return 'Started Working';
+      case 'finished_work':
+        return 'Finished Work';
       default:
         return status;
     }
@@ -299,7 +312,7 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
                   width: 40,
                   height: 40,
                   borderRadius: 20,
-                  backgroundColor: getMarkerColor(issue.issue_type),
+                  backgroundColor: getMarkerColor(issue.issue_type, issue.status),
                   borderWidth: 3,
                   borderColor: '#FFFFFF',
                   justifyContent: 'center',

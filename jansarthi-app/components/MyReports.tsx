@@ -91,14 +91,14 @@ const MyReports: React.FC<MyReportsProps> = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'in_progress':
-        return 'bg-blue-100 text-blue-800';
-      case 'resolved':
-        return 'bg-green-100 text-green-800';
-      case 'rejected':
+      case 'reported':
         return 'bg-red-100 text-red-800';
+      case 'pradhan_check':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'started_working':
+        return 'bg-green-100 text-green-800';
+      case 'finished_work':
+        return 'bg-blue-100 text-blue-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -106,14 +106,14 @@ const MyReports: React.FC<MyReportsProps> = () => {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'Pending';
-      case 'in_progress':
-        return 'In Progress';
-      case 'resolved':
-        return 'Resolved';
-      case 'rejected':
-        return 'Rejected';
+      case 'reported':
+        return 'Reported';
+      case 'pradhan_check':
+        return 'Pradhan Check';
+      case 'started_working':
+        return 'Started Working';
+      case 'finished_work':
+        return 'Finished Work';
       default:
         return status;
     }

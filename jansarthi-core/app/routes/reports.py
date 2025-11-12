@@ -94,7 +94,7 @@ async def create_issue(
         latitude=latitude,
         longitude=longitude,
         user_id=current_user.id,
-        status=IssueStatus.PENDING,
+        status=IssueStatus.REPORTED,
     )
 
     session.add(new_issue)
