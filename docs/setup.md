@@ -41,6 +41,10 @@ source .venv/bin/activate
 ```
 
 ```bash
+alembic upgrade head
+```
+
+```bash
 fastapi dev app/main.py
 ```
 
