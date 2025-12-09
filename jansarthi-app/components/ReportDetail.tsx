@@ -24,7 +24,7 @@ const StatusTracker: React.FC<StatusTrackerProps> = ({ currentStatus, createdAt 
 
   const stages = [
     { key: 'reported', label: getText(t.status.reported) },
-    { key: 'pradhan_check', label: getText(t.status.pradhan) },
+    { key: 'parshad_check', label: getText(t.status.parshad) },
     { key: 'started_working', label: getText(t.status.pwdClerkStartedWorking) },
     { key: 'finished_work', label: getText(t.status.finishedWorking) },
   ];
@@ -165,7 +165,7 @@ const ReportDetail: React.FC<ReportDetailProps> = ({ issueId }) => {
     switch (status) {
       case 'reported':
         return 'bg-red-500';
-      case 'pradhan_check':
+      case 'parshad_check':
         return 'bg-yellow-500';
       case 'started_working':
         return 'bg-green-500';
@@ -180,8 +180,8 @@ const ReportDetail: React.FC<ReportDetailProps> = ({ issueId }) => {
     switch (status) {
       case 'reported':
         return getText(t.status.reported);
-      case 'pradhan_check':
-        return getText(t.status.pradhanCheck);
+      case 'parshad_check':
+        return getText(t.status.parshadCheck);
       case 'started_working':
         return getText(t.status.startedWorking);
       case 'finished_work':

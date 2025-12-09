@@ -1,14 +1,14 @@
 import { Button, ButtonText } from '@/components/ui/button';
 import { FormControl } from '@/components/ui/form-control';
 import { Heading } from '@/components/ui/heading';
-import { Input, InputField } from '@/components/ui/input';
+import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { TextInput, View } from 'react-native';
 
 export default function VerifyOTPScreen() {
   const { verifyOTP, resendOTP, isLoading, error, clearError } = useAuth();
@@ -20,9 +20,37 @@ export default function VerifyOTPScreen() {
   }>();
 
   const [otpCode, setOtpCode] = useState('');
+  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
   const [localError, setLocalError] = useState('');
   const [resendTimer, setResendTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
+  
+  // Refs for each OTP input
+  const inputRefs = useRef<(TextInput | null)[]>([]);
+
+  const handleOtpChange = (value: string, index: number) => {
+    // Only allow digits
+    const digit = value.replace(/[^0-9]/g, '');
+    
+    const newDigits = [...otpDigits];
+    newDigits[index] = digit.slice(-1); // Only take last digit
+    setOtpDigits(newDigits);
+    setOtpCode(newDigits.join(''));
+    setLocalError('');
+    clearError();
+
+    // Auto-focus next input
+    if (digit && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyPress = (key: string, index: number) => {
+    // Handle backspace - move to previous input
+    if (key === 'Backspace' && !otpDigits[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
 
   useEffect(() => {
     // Start countdown timer
@@ -75,6 +103,7 @@ export default function VerifyOTPScreen() {
       setResendTimer(60);
       setCanResend(false);
       setOtpCode('');
+      setOtpDigits(['', '', '', '', '', '']);
     } catch (err) {
       console.error('Resend OTP error:', err);
     }
@@ -105,26 +134,25 @@ export default function VerifyOTPScreen() {
         <VStack space="lg" className="flex-1">
           <FormControl isInvalid={!!localError || !!error}>
             <VStack space="sm">
-              <Input 
-                variant="outline" 
-                size="lg"
-                className="bg-background-50 border-outline-200"
-              >
-                <InputField
-                  placeholder={getText(t.auth.verifyOtp.enterOtpPlaceholder)}
-                  keyboardType="number-pad"
-                  maxLength={6}
-                  value={otpCode}
-                  onChangeText={(text) => {
-                    setOtpCode(text);
-                    setLocalError('');
-                    clearError();
-                  }}
-                  autoFocus
-                  textAlign="center"
-                  className="text-2xl tracking-widest text-typography-900"
-                />
-              </Input>
+              {/* OTP Input Boxes */}
+              <HStack space="sm" className="justify-center">
+                {otpDigits.map((digit, index) => (
+                  <TextInput
+                    key={index}
+                    ref={(ref) => { inputRefs.current[index] = ref; }}
+                    value={digit}
+                    onChangeText={(value) => handleOtpChange(value, index)}
+                    onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
+                    keyboardType="number-pad"
+                    maxLength={1}
+                    autoFocus={index === 0}
+                    className={`w-12 h-14 text-center text-2xl font-bold border-2 rounded-xl bg-background-0 text-typography-900 ${
+                      digit ? 'border-brand-500' : 'border-outline-200'
+                    }`}
+                    selectionColor="#16a34a"
+                  />
+                ))}
+              </HStack>
               {(localError || error) && (
                 <Text size="sm" className="text-error-500 text-center">
                   {localError || error}

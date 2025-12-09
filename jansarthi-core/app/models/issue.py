@@ -19,8 +19,8 @@ class IssueStatus(str, Enum):
     """Enum for issue status"""
 
     REPORTED = "reported"
-    ASSIGNED = "assigned"  # PWD assigned to Pradhan
-    PRADHAN_CHECK = "pradhan_check"  # Pradhan acknowledged
+    ASSIGNED = "assigned"  # PWD assigned to Parshad
+    PARSHAD_CHECK = "parshad_check"  # Parshad acknowledged
     STARTED_WORKING = "started_working"
     FINISHED_WORK = "finished_work"
 
@@ -29,8 +29,8 @@ class UserRole(str, Enum):
     """Enum for user roles"""
     
     USER = "user"  # Normal citizen who reports issues
-    PRADHAN = "pradhan"  # Village head who works on issues
-    PWD_WORKER = "pwd_worker"  # PWD official who assigns pradhans
+    PARSHAD = "parshad"  # Ward councillor who works on issues
+    PWD_WORKER = "pwd_worker"  # PWD official who assigns parshads
 
 
 class Issue(SQLModel, table=True):
@@ -51,6 +51,10 @@ class Issue(SQLModel, table=True):
     # Location data
     latitude: float = Field(ge=-90, le=90)
     longitude: float = Field(ge=-180, le=180)
+    
+    # Ward information
+    ward_id: Optional[int] = Field(default=None, index=True)
+    ward_name: Optional[str] = Field(default=None, max_length=200)
 
     # Status
     status: IssueStatus = Field(
@@ -66,13 +70,13 @@ class Issue(SQLModel, table=True):
     # User ID (for future auth implementation)
     user_id: Optional[int] = Field(default=None, foreign_key="users.id", index=True)
     
-    # Assigned Pradhan (set by PWD worker)
-    assigned_pradhan_id: Optional[int] = Field(default=None, foreign_key="users.id", index=True)
+    # Assigned Parshad (set by PWD worker)
+    assigned_parshad_id: Optional[int] = Field(default=None, foreign_key="users.id", index=True)
     
     # Assignment notes from PWD worker
     assignment_notes: Optional[str] = Field(default=None, max_length=1000)
     
-    # Pradhan's progress notes
+    # Parshad's progress notes
     progress_notes: Optional[str] = Field(default=None, max_length=2000)
 
     # Timestamps
@@ -149,7 +153,7 @@ class User(SQLModel, table=True):
     is_active: bool = Field(default=True)
     is_verified: bool = Field(default=False)
     
-    # Location (for Pradhans - to match with nearby issues)
+    # Location (for Parshads - to match with nearby issues)
     latitude: Optional[float] = Field(default=None, ge=-90, le=90)
     longitude: Optional[float] = Field(default=None, ge=-180, le=180)
     village_name: Optional[str] = Field(default=None, max_length=255)

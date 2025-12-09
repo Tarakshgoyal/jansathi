@@ -1,4 +1,4 @@
-"""PWD Worker API routes - for assigning Pradhans and monitoring issues"""
+"""PWD Worker API routes - for assigning Parshads and monitoring issues"""
 
 import math
 from datetime import datetime, timedelta, timezone
@@ -13,11 +13,12 @@ from app.schemas.admin import (
     AdminIssueListResponse,
     AdminIssueResponse,
     AdminUserResponse,
-    AssignPradhanRequest,
+    AssignParshadRequest,
+    CreateParshadRequest,
     IssueCountByStatus,
     IssueCountByType,
-    PradhanInfo,
-    PradhanListResponse,
+    ParshadInfo,
+    ParshadListResponse,
     PWDDashboardStats,
     PWDStatusUpdate,
     UserInfo,
@@ -54,17 +55,17 @@ def build_issue_response(issue: Issue, session: Session) -> AdminIssueResponse:
         if user:
             reporter = UserInfo(id=user.id, name=user.name, mobile_number=user.mobile_number)
     
-    assigned_pradhan = None
-    if issue.assigned_pradhan_id:
-        pradhan = session.get(User, issue.assigned_pradhan_id)
-        if pradhan:
-            assigned_pradhan = PradhanInfo(
-                id=pradhan.id,
-                name=pradhan.name,
-                mobile_number=pradhan.mobile_number,
-                village_name=pradhan.village_name,
-                latitude=pradhan.latitude,
-                longitude=pradhan.longitude,
+    assigned_parshad = None
+    if issue.assigned_parshad_id:
+        parshad = session.get(User, issue.assigned_parshad_id)
+        if parshad:
+            assigned_parshad = ParshadInfo(
+                id=parshad.id,
+                name=parshad.name,
+                mobile_number=parshad.mobile_number,
+                village_name=parshad.village_name,
+                latitude=parshad.latitude,
+                longitude=parshad.longitude,
             )
     
     return AdminIssueResponse(
@@ -76,8 +77,8 @@ def build_issue_response(issue: Issue, session: Session) -> AdminIssueResponse:
         status=issue.status,
         user_id=issue.user_id,
         reporter=reporter,
-        assigned_pradhan_id=issue.assigned_pradhan_id,
-        assigned_pradhan=assigned_pradhan,
+        assigned_parshad_id=issue.assigned_parshad_id,
+        assigned_parshad=assigned_parshad,
         assignment_notes=issue.assignment_notes,
         progress_notes=issue.progress_notes,
         created_at=issue.created_at,
@@ -100,28 +101,28 @@ async def get_pwd_dashboard(
     """
     Get comprehensive dashboard statistics for PWD Worker.
     
-    Shows overview of all issues, assignment status, and Pradhan activity.
+    Shows overview of all issues, assignment status, and Parshad activity.
     """
     # Total issues
     total_issues = session.exec(select(func.count(Issue.id))).one()
     
-    # Unassigned issues (reported but no pradhan assigned)
+    # Unassigned issues (reported but no parshad assigned)
     unassigned_issues = session.exec(
         select(func.count(Issue.id)).where(
             Issue.status == IssueStatus.REPORTED,
-            Issue.assigned_pradhan_id == None
+            Issue.assigned_parshad_id == None
         )
     ).one()
     
-    # Assigned issues (has pradhan but not yet acknowledged)
+    # Assigned issues (has parshad but not yet acknowledged)
     assigned_issues = session.exec(
         select(func.count(Issue.id)).where(Issue.status == IssueStatus.ASSIGNED)
     ).one()
     
-    # In progress (pradhan_check or started_working)
+    # In progress (parshad_check or started_working)
     in_progress_issues = session.exec(
         select(func.count(Issue.id)).where(
-            Issue.status.in_([IssueStatus.PRADHAN_CHECK, IssueStatus.STARTED_WORKING])
+            Issue.status.in_([IssueStatus.PARSHAD_CHECK, IssueStatus.STARTED_WORKING])
         )
     ).one()
     
@@ -130,18 +131,18 @@ async def get_pwd_dashboard(
         select(func.count(Issue.id)).where(Issue.status == IssueStatus.FINISHED_WORK)
     ).one()
     
-    # Total Pradhans
-    total_pradhans = session.exec(
+    # Total Parshads
+    total_parshads = session.exec(
         select(func.count(User.id)).where(
-            User.role == UserRole.PRADHAN,
+            User.role == UserRole.PARSHAD,
             User.is_active == True
         )
     ).one()
     
-    # Active Pradhans (with ongoing work)
-    active_pradhans = session.exec(
-        select(func.count(func.distinct(Issue.assigned_pradhan_id))).where(
-            Issue.status.in_([IssueStatus.ASSIGNED, IssueStatus.PRADHAN_CHECK, IssueStatus.STARTED_WORKING])
+    # Active Parshads (with ongoing work)
+    active_parshads = session.exec(
+        select(func.count(func.distinct(Issue.assigned_parshad_id))).where(
+            Issue.status.in_([IssueStatus.ASSIGNED, IssueStatus.PARSHAD_CHECK, IssueStatus.STARTED_WORKING])
         )
     ).one()
     
@@ -180,8 +181,8 @@ async def get_pwd_dashboard(
         assigned_issues=assigned_issues,
         in_progress_issues=in_progress_issues,
         completed_issues=completed_issues,
-        total_pradhans=total_pradhans,
-        active_pradhans=active_pradhans,
+        total_parshads=total_parshads,
+        active_parshads=active_parshads,
         issues_by_type=issues_by_type,
         issues_by_status=issues_by_status,
         issues_today=issues_today,
@@ -202,7 +203,7 @@ async def get_all_issues(
     issue_type: Optional[IssueType] = Query(None, description="Filter by issue type"),
     status_filter: Optional[IssueStatus] = Query(None, alias="status", description="Filter by status"),
     assigned: Optional[bool] = Query(None, description="Filter by assignment status (true=assigned, false=unassigned)"),
-    pradhan_id: Optional[int] = Query(None, description="Filter by assigned Pradhan"),
+    parshad_id: Optional[int] = Query(None, description="Filter by assigned Parshad"),
     search: Optional[str] = Query(None, description="Search in description"),
     pwd_user: User = Depends(get_pwd_user),
     session: Session = Depends(get_session),
@@ -227,15 +228,15 @@ async def get_all_issues(
     
     if assigned is not None:
         if assigned:
-            query = query.where(Issue.assigned_pradhan_id != None)
-            count_query = count_query.where(Issue.assigned_pradhan_id != None)
+            query = query.where(Issue.assigned_parshad_id != None)
+            count_query = count_query.where(Issue.assigned_parshad_id != None)
         else:
-            query = query.where(Issue.assigned_pradhan_id == None)
-            count_query = count_query.where(Issue.assigned_pradhan_id == None)
+            query = query.where(Issue.assigned_parshad_id == None)
+            count_query = count_query.where(Issue.assigned_parshad_id == None)
     
-    if pradhan_id:
-        query = query.where(Issue.assigned_pradhan_id == pradhan_id)
-        count_query = count_query.where(Issue.assigned_pradhan_id == pradhan_id)
+    if parshad_id:
+        query = query.where(Issue.assigned_parshad_id == parshad_id)
+        count_query = count_query.where(Issue.assigned_parshad_id == parshad_id)
     
     if search:
         query = query.where(Issue.description.contains(search))
@@ -290,21 +291,21 @@ async def get_issue_detail(
 @pwd_router.post(
     "/issues/{issue_id}/assign",
     response_model=AdminIssueResponse,
-    summary="Assign Pradhan to an issue",
+    summary="Assign Parshad to an issue",
 )
-async def assign_pradhan(
+async def assign_parshad(
     issue_id: int,
-    assignment: AssignPradhanRequest,
+    assignment: AssignParshadRequest,
     pwd_user: User = Depends(get_pwd_user),
     session: Session = Depends(get_session),
 ):
     """
-    Assign a Pradhan to handle an issue.
+    Assign a Parshad to handle an issue.
     
-    **PWD Worker Only**: Assign or reassign Pradhans to issues.
+    **PWD Worker Only**: Assign or reassign Parshads to issues.
     
-    - **pradhan_id**: ID of the Pradhan to assign
-    - **assignment_notes**: Optional notes for the Pradhan
+    - **parshad_id**: ID of the Parshad to assign
+    - **assignment_notes**: Optional notes for the Parshad
     """
     issue = session.get(Issue, issue_id)
     
@@ -314,29 +315,29 @@ async def assign_pradhan(
             detail=f"Issue with id {issue_id} not found"
         )
     
-    # Verify Pradhan exists and is active
-    pradhan = session.get(User, assignment.pradhan_id)
+    # Verify Parshad exists and is active
+    parshad = session.get(User, assignment.parshad_id)
     
-    if not pradhan:
+    if not parshad:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Pradhan with id {assignment.pradhan_id} not found"
+            detail=f"Parshad with id {assignment.parshad_id} not found"
         )
     
-    if pradhan.role != UserRole.PRADHAN:
+    if parshad.role != UserRole.PARSHAD:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Selected user is not a Pradhan"
+            detail="Selected user is not a Parshad"
         )
     
-    if not pradhan.is_active:
+    if not parshad.is_active:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Selected Pradhan is not active"
+            detail="Selected Parshad is not active"
         )
     
-    # Assign Pradhan
-    issue.assigned_pradhan_id = assignment.pradhan_id
+    # Assign Parshad
+    issue.assigned_parshad_id = assignment.parshad_id
     issue.assignment_notes = assignment.assignment_notes
     issue.status = IssueStatus.ASSIGNED
     
@@ -359,7 +360,7 @@ async def update_issue_assignment(
     session: Session = Depends(get_session),
 ):
     """
-    Update issue assignment (reassign Pradhan or update notes).
+    Update issue assignment (reassign Parshad or update notes).
     """
     issue = session.get(Issue, issue_id)
     
@@ -369,17 +370,17 @@ async def update_issue_assignment(
             detail=f"Issue with id {issue_id} not found"
         )
     
-    if update_data.assigned_pradhan_id is not None:
-        # Verify new Pradhan
-        pradhan = session.get(User, update_data.assigned_pradhan_id)
+    if update_data.assigned_parshad_id is not None:
+        # Verify new Parshad
+        parshad = session.get(User, update_data.assigned_parshad_id)
         
-        if not pradhan or pradhan.role != UserRole.PRADHAN:
+        if not parshad or parshad.role != UserRole.PARSHAD:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid Pradhan ID"
+                detail="Invalid Parshad ID"
             )
         
-        issue.assigned_pradhan_id = update_data.assigned_pradhan_id
+        issue.assigned_parshad_id = update_data.assigned_parshad_id
         issue.status = IssueStatus.ASSIGNED  # Reset status on reassignment
     
     if update_data.assignment_notes is not None:
@@ -392,23 +393,130 @@ async def update_issue_assignment(
     return build_issue_response(issue, session)
 
 
-# ==================== Pradhan Management ====================
+# ==================== Parshad Management ====================
+
+@pwd_router.post(
+    "/parshads",
+    response_model=AdminUserResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new Parshad account",
+)
+async def create_parshad(
+    parshad_data: CreateParshadRequest,
+    pwd_user: User = Depends(get_pwd_user),
+    session: Session = Depends(get_session),
+):
+    """
+    Create a new Parshad account.
+    
+    **PWD Worker Only**: Only PWD workers can create Parshad accounts.
+    
+    The Parshad will be created with:
+    - role: PARSHAD
+    - is_verified: True (pre-verified by PWD)
+    - is_active: True
+    
+    - **name**: Parshad's full name
+    - **mobile_number**: Mobile number (will be used for login)
+    - **village_name**: Village/area name
+    - **latitude**: Optional location latitude
+    - **longitude**: Optional location longitude
+    """
+    from app.services.twilio import normalize_phone_number
+    
+    # Normalize phone number
+    normalized_number = normalize_phone_number(parshad_data.mobile_number)
+    
+    # Check if user already exists
+    existing_user = session.exec(
+        select(User).where(User.mobile_number == normalized_number)
+    ).first()
+    
+    if existing_user:
+        if existing_user.role == UserRole.PARSHAD:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="A Parshad with this mobile number already exists"
+            )
+        else:
+            # Upgrade existing user to Parshad
+            existing_user.role = UserRole.PARSHAD
+            existing_user.is_verified = True
+            if parshad_data.village_name:
+                existing_user.village_name = parshad_data.village_name
+            if parshad_data.latitude is not None:
+                existing_user.latitude = parshad_data.latitude
+            if parshad_data.longitude is not None:
+                existing_user.longitude = parshad_data.longitude
+            
+            session.add(existing_user)
+            session.commit()
+            session.refresh(existing_user)
+            
+            return AdminUserResponse(
+                id=existing_user.id,
+                name=existing_user.name,
+                mobile_number=existing_user.mobile_number,
+                role=existing_user.role,
+                is_active=existing_user.is_active,
+                is_verified=existing_user.is_verified,
+                village_name=existing_user.village_name,
+                latitude=existing_user.latitude,
+                longitude=existing_user.longitude,
+                created_at=existing_user.created_at,
+                updated_at=existing_user.updated_at,
+                total_reports=0,
+                assigned_issues=0,
+            )
+    
+    # Create new Parshad
+    new_parshad = User(
+        name=parshad_data.name,
+        mobile_number=normalized_number,
+        role=UserRole.PARSHAD,
+        is_active=True,
+        is_verified=True,  # Pre-verified by PWD
+        village_name=parshad_data.village_name,
+        latitude=parshad_data.latitude,
+        longitude=parshad_data.longitude,
+    )
+    
+    session.add(new_parshad)
+    session.commit()
+    session.refresh(new_parshad)
+    
+    return AdminUserResponse(
+        id=new_parshad.id,
+        name=new_parshad.name,
+        mobile_number=new_parshad.mobile_number,
+        role=new_parshad.role,
+        is_active=new_parshad.is_active,
+        is_verified=new_parshad.is_verified,
+        village_name=new_parshad.village_name,
+        latitude=new_parshad.latitude,
+        longitude=new_parshad.longitude,
+        created_at=new_parshad.created_at,
+        updated_at=new_parshad.updated_at,
+        total_reports=0,
+        assigned_issues=0,
+    )
+
 
 @pwd_router.get(
-    "/pradhans",
-    response_model=PradhanListResponse,
-    summary="Get all Pradhans",
+    "/parshads",
+    response_model=ParshadListResponse,
+    summary="Get all Parshads",
 )
-async def get_all_pradhans(
+async def get_all_parshads(
     is_active: Optional[bool] = Query(None, description="Filter by active status"),
     search: Optional[str] = Query(None, description="Search by name or village"),
     pwd_user: User = Depends(get_pwd_user),
     session: Session = Depends(get_session),
 ):
     """
-    Get list of all Pradhans for assignment.
+    Get list of all Parshads for assignment.
     """
-    query = select(User).where(User.role == UserRole.PRADHAN)
+    query = select(User).where(User.role == UserRole.PARSHAD)
     
     if is_active is not None:
         query = query.where(User.is_active == is_active)
@@ -418,10 +526,10 @@ async def get_all_pradhans(
             (User.name.contains(search)) | (User.village_name.contains(search))
         )
     
-    pradhans = session.exec(query.order_by(User.name)).all()
+    parshads = session.exec(query.order_by(User.name)).all()
     
     items = [
-        PradhanInfo(
+        ParshadInfo(
             id=p.id,
             name=p.name,
             mobile_number=p.mobile_number,
@@ -429,19 +537,19 @@ async def get_all_pradhans(
             latitude=p.latitude,
             longitude=p.longitude,
         )
-        for p in pradhans
+        for p in parshads
     ]
     
-    return PradhanListResponse(items=items, total=len(items))
+    return ParshadListResponse(items=items, total=len(items))
 
 
 @pwd_router.get(
-    "/pradhans/{pradhan_id}/issues",
+    "/parshads/{parshad_id}/issues",
     response_model=AdminIssueListResponse,
-    summary="Get issues assigned to a Pradhan",
+    summary="Get issues assigned to a Parshad",
 )
-async def get_pradhan_issues(
-    pradhan_id: int,
+async def get_parshad_issues(
+    parshad_id: int,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     status_filter: Optional[IssueStatus] = Query(None, alias="status"),
@@ -449,21 +557,21 @@ async def get_pradhan_issues(
     session: Session = Depends(get_session),
 ):
     """
-    Get all issues assigned to a specific Pradhan.
+    Get all issues assigned to a specific Parshad.
     
-    Useful for monitoring Pradhan workload and performance.
+    Useful for monitoring Parshad workload and performance.
     """
-    # Verify Pradhan exists
-    pradhan = session.get(User, pradhan_id)
-    if not pradhan or pradhan.role != UserRole.PRADHAN:
+    # Verify Parshad exists
+    parshad = session.get(User, parshad_id)
+    if not parshad or parshad.role != UserRole.PARSHAD:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Pradhan not found"
+            detail="Parshad not found"
         )
     
     # Build query
-    query = select(Issue).where(Issue.assigned_pradhan_id == pradhan_id)
-    count_query = select(func.count(Issue.id)).where(Issue.assigned_pradhan_id == pradhan_id)
+    query = select(Issue).where(Issue.assigned_parshad_id == parshad_id)
+    count_query = select(func.count(Issue.id)).where(Issue.assigned_parshad_id == parshad_id)
     
     if status_filter:
         query = query.where(Issue.status == status_filter)
@@ -539,9 +647,9 @@ async def get_all_users(
         ).one()
         
         assigned_count = 0
-        if user.role == UserRole.PRADHAN:
+        if user.role == UserRole.PARSHAD:
             assigned_count = session.exec(
-                select(func.count(Issue.id)).where(Issue.assigned_pradhan_id == user.id)
+                select(func.count(Issue.id)).where(Issue.assigned_parshad_id == user.id)
             ).one()
         
         items.append(AdminUserResponse(
@@ -586,8 +694,8 @@ async def update_user(
     Update user role, status, or location details.
     
     Use this to:
-    - Promote a user to Pradhan
-    - Set Pradhan's village and location
+    - Promote a user to Parshad
+    - Set Parshad's village and location
     - Activate/deactivate users
     """
     user = session.get(User, user_id)
@@ -635,9 +743,9 @@ async def update_user(
     ).one()
     
     assigned_count = 0
-    if user.role == UserRole.PRADHAN:
+    if user.role == UserRole.PARSHAD:
         assigned_count = session.exec(
-            select(func.count(Issue.id)).where(Issue.assigned_pradhan_id == user.id)
+            select(func.count(Issue.id)).where(Issue.assigned_parshad_id == user.id)
         ).one()
     
     return AdminUserResponse(

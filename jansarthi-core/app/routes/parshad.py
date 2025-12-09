@@ -1,21 +1,22 @@
-"""Pradhan API routes - for managing assigned issues and updating progress"""
+"""Parshad API routes - for managing assigned issues and updating progress"""
 
 import math
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
+from fastapi import status as http_status
 from sqlmodel import Session, func, select
 
 from app.database import get_session
-from app.models.issue import Issue, IssueStatus, IssueType, User, UserRole
+from app.models.issue import Issue, IssuePhoto, IssueStatus, IssueType, User, UserRole
 from app.schemas.admin import (
     AdminIssueListResponse,
     AdminIssueResponse,
     IssueCountByType,
-    PradhanDashboardStats,
-    PradhanInfo,
-    PradhanStatusUpdate,
+    ParshadDashboardStats,
+    ParshadInfo,
+    ParshadStatusUpdate,
     UserInfo,
 )
 from app.services.auth import get_current_active_user
@@ -23,19 +24,19 @@ from app.services.storage import get_storage_service
 from app.settings.config import get_settings
 
 settings = get_settings()
-pradhan_router = APIRouter(prefix="/api/pradhan", tags=["Pradhan"])
+parshad_router = APIRouter(prefix="/api/parshad", tags=["Parshad"])
 
 
-async def get_pradhan_user(
+async def get_parshad_user(
     current_user: User = Depends(get_current_active_user),
 ) -> User:
     """
-    Dependency to verify user is a Pradhan
+    Dependency to verify user is a Parshad
     """
-    if current_user.role != UserRole.PRADHAN:
+    if current_user.role != UserRole.PARSHAD:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Pradhan privileges required"
+            status_code=http_status.HTTP_403_FORBIDDEN,
+            detail="Parshad privileges required"
         )
     return current_user
 
@@ -48,17 +49,17 @@ def build_issue_response(issue: Issue, session: Session) -> AdminIssueResponse:
         if user:
             reporter = UserInfo(id=user.id, name=user.name, mobile_number=user.mobile_number)
     
-    assigned_pradhan = None
-    if issue.assigned_pradhan_id:
-        pradhan = session.get(User, issue.assigned_pradhan_id)
-        if pradhan:
-            assigned_pradhan = PradhanInfo(
-                id=pradhan.id,
-                name=pradhan.name,
-                mobile_number=pradhan.mobile_number,
-                village_name=pradhan.village_name,
-                latitude=pradhan.latitude,
-                longitude=pradhan.longitude,
+    assigned_parshad = None
+    if issue.assigned_parshad_id:
+        parshad = session.get(User, issue.assigned_parshad_id)
+        if parshad:
+            assigned_parshad = ParshadInfo(
+                id=parshad.id,
+                name=parshad.name,
+                mobile_number=parshad.mobile_number,
+                village_name=parshad.village_name,
+                latitude=parshad.latitude,
+                longitude=parshad.longitude,
             )
     
     return AdminIssueResponse(
@@ -70,8 +71,8 @@ def build_issue_response(issue: Issue, session: Session) -> AdminIssueResponse:
         status=issue.status,
         user_id=issue.user_id,
         reporter=reporter,
-        assigned_pradhan_id=issue.assigned_pradhan_id,
-        assigned_pradhan=assigned_pradhan,
+        assigned_parshad_id=issue.assigned_parshad_id,
+        assigned_parshad=assigned_parshad,
         assignment_notes=issue.assignment_notes,
         progress_notes=issue.progress_notes,
         created_at=issue.created_at,
@@ -82,63 +83,63 @@ def build_issue_response(issue: Issue, session: Session) -> AdminIssueResponse:
 
 # ==================== Dashboard ====================
 
-@pradhan_router.get(
+@parshad_router.get(
     "/dashboard",
-    response_model=PradhanDashboardStats,
-    summary="Get Pradhan dashboard statistics",
+    response_model=ParshadDashboardStats,
+    summary="Get Parshad dashboard statistics",
 )
-async def get_pradhan_dashboard(
-    pradhan_user: User = Depends(get_pradhan_user),
+async def get_parshad_dashboard(
+    parshad_user: User = Depends(get_parshad_user),
     session: Session = Depends(get_session),
 ):
     """
-    Get dashboard statistics for the logged-in Pradhan.
+    Get dashboard statistics for the logged-in Parshad.
     
-    Shows only issues assigned to this Pradhan.
+    Shows only issues assigned to this Parshad.
     """
-    pradhan_id = pradhan_user.id
+    parshad_id = parshad_user.id
     
-    # Total assigned to this Pradhan
+    # Total assigned to this Parshad
     total_assigned = session.exec(
-        select(func.count(Issue.id)).where(Issue.assigned_pradhan_id == pradhan_id)
+        select(func.count(Issue.id)).where(Issue.assigned_parshad_id == parshad_id)
     ).one()
     
     # Pending acknowledgement (status = ASSIGNED)
     pending_acknowledgement = session.exec(
         select(func.count(Issue.id)).where(
-            Issue.assigned_pradhan_id == pradhan_id,
+            Issue.assigned_parshad_id == parshad_id,
             Issue.status == IssueStatus.ASSIGNED
         )
     ).one()
     
-    # In progress (PRADHAN_CHECK or STARTED_WORKING)
+    # In progress (PARSHAD_CHECK or STARTED_WORKING)
     in_progress = session.exec(
         select(func.count(Issue.id)).where(
-            Issue.assigned_pradhan_id == pradhan_id,
-            Issue.status.in_([IssueStatus.PRADHAN_CHECK, IssueStatus.STARTED_WORKING])
+            Issue.assigned_parshad_id == parshad_id,
+            Issue.status.in_([IssueStatus.PARSHAD_CHECK, IssueStatus.STARTED_WORKING])
         )
     ).one()
     
     # Completed
     completed = session.exec(
         select(func.count(Issue.id)).where(
-            Issue.assigned_pradhan_id == pradhan_id,
+            Issue.assigned_parshad_id == parshad_id,
             Issue.status == IssueStatus.FINISHED_WORK
         )
     ).one()
     
-    # Issues by type (for this Pradhan)
+    # Issues by type (for this Parshad)
     issues_by_type = IssueCountByType()
     for issue_type in IssueType:
         count = session.exec(
             select(func.count(Issue.id)).where(
-                Issue.assigned_pradhan_id == pradhan_id,
+                Issue.assigned_parshad_id == parshad_id,
                 Issue.issue_type == issue_type
             )
         ).one()
         setattr(issues_by_type, issue_type.value, count)
     
-    return PradhanDashboardStats(
+    return ParshadDashboardStats(
         total_assigned=total_assigned,
         pending_acknowledgement=pending_acknowledgement,
         in_progress=in_progress,
@@ -149,29 +150,29 @@ async def get_pradhan_dashboard(
 
 # ==================== Issue Management ====================
 
-@pradhan_router.get(
+@parshad_router.get(
     "/issues",
     response_model=AdminIssueListResponse,
-    summary="Get issues assigned to this Pradhan",
+    summary="Get issues assigned to this Parshad",
 )
 async def get_my_issues(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
     issue_type: Optional[IssueType] = Query(None, description="Filter by issue type"),
     status_filter: Optional[IssueStatus] = Query(None, alias="status", description="Filter by status"),
-    pradhan_user: User = Depends(get_pradhan_user),
+    parshad_user: User = Depends(get_parshad_user),
     session: Session = Depends(get_session),
 ):
     """
-    Get paginated list of issues assigned to this Pradhan.
+    Get paginated list of issues assigned to this Parshad.
     
-    **Pradhan Only**: Only sees issues assigned to them.
+    **Parshad Only**: Only sees issues assigned to them.
     """
-    pradhan_id = pradhan_user.id
+    parshad_id = parshad_user.id
     
-    # Build query - only issues assigned to this Pradhan
-    query = select(Issue).where(Issue.assigned_pradhan_id == pradhan_id)
-    count_query = select(func.count(Issue.id)).where(Issue.assigned_pradhan_id == pradhan_id)
+    # Build query - only issues assigned to this Parshad
+    query = select(Issue).where(Issue.assigned_parshad_id == parshad_id)
+    count_query = select(func.count(Issue.id)).where(Issue.assigned_parshad_id == parshad_id)
     
     # Apply filters
     if issue_type:
@@ -204,7 +205,7 @@ async def get_my_issues(
     )
 
 
-@pradhan_router.get(
+@parshad_router.get(
     "/issues/pending",
     response_model=AdminIssueListResponse,
     summary="Get pending issues needing acknowledgement",
@@ -212,22 +213,22 @@ async def get_my_issues(
 async def get_pending_issues(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
-    pradhan_user: User = Depends(get_pradhan_user),
+    parshad_user: User = Depends(get_parshad_user),
     session: Session = Depends(get_session),
 ):
     """
     Get issues that are newly assigned and need acknowledgement.
     
-    These are issues with status = ASSIGNED that the Pradhan hasn't started yet.
+    These are issues with status = ASSIGNED that the Parshad hasn't started yet.
     """
-    pradhan_id = pradhan_user.id
+    parshad_id = parshad_user.id
     
     query = select(Issue).where(
-        Issue.assigned_pradhan_id == pradhan_id,
+        Issue.assigned_parshad_id == parshad_id,
         Issue.status == IssueStatus.ASSIGNED
     )
     count_query = select(func.count(Issue.id)).where(
-        Issue.assigned_pradhan_id == pradhan_id,
+        Issue.assigned_parshad_id == parshad_id,
         Issue.status == IssueStatus.ASSIGNED
     )
     
@@ -249,14 +250,14 @@ async def get_pending_issues(
     )
 
 
-@pradhan_router.get(
+@parshad_router.get(
     "/issues/{issue_id}",
     response_model=AdminIssueResponse,
     summary="Get issue details",
 )
 async def get_issue_detail(
     issue_id: int,
-    pradhan_user: User = Depends(get_pradhan_user),
+    parshad_user: User = Depends(get_parshad_user),
     session: Session = Depends(get_session),
 ):
     """
@@ -266,39 +267,39 @@ async def get_issue_detail(
     
     if not issue:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=http_status.HTTP_404_NOT_FOUND,
             detail=f"Issue with id {issue_id} not found"
         )
     
-    # Verify issue is assigned to this Pradhan
-    if issue.assigned_pradhan_id != pradhan_user.id:
+    # Verify issue is assigned to this Parshad
+    if issue.assigned_parshad_id != parshad_user.id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=http_status.HTTP_403_FORBIDDEN,
             detail="This issue is not assigned to you"
         )
     
     return build_issue_response(issue, session)
 
 
-@pradhan_router.patch(
+@parshad_router.patch(
     "/issues/{issue_id}/status",
     response_model=AdminIssueResponse,
     summary="Update issue status and progress",
 )
 async def update_issue_status(
     issue_id: int,
-    status_update: PradhanStatusUpdate,
-    pradhan_user: User = Depends(get_pradhan_user),
+    status_update: ParshadStatusUpdate,
+    parshad_user: User = Depends(get_parshad_user),
     session: Session = Depends(get_session),
 ):
     """
     Update the status of an assigned issue.
     
-    **Pradhan Only**: Can only update issues assigned to them.
+    **Parshad Only**: Can only update issues assigned to them.
     
     Valid status transitions:
-    - ASSIGNED → PRADHAN_CHECK (acknowledge receipt)
-    - PRADHAN_CHECK → STARTED_WORKING (begin work)
+    - ASSIGNED → PARSHAD_CHECK (acknowledge receipt)
+    - PARSHAD_CHECK → STARTED_WORKING (begin work)
     - STARTED_WORKING → FINISHED_WORK (complete work)
     
     - **status**: New status
@@ -308,34 +309,34 @@ async def update_issue_status(
     
     if not issue:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=http_status.HTTP_404_NOT_FOUND,
             detail=f"Issue with id {issue_id} not found"
         )
     
-    # Verify issue is assigned to this Pradhan
-    if issue.assigned_pradhan_id != pradhan_user.id:
+    # Verify issue is assigned to this Parshad
+    if issue.assigned_parshad_id != parshad_user.id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=http_status.HTTP_403_FORBIDDEN,
             detail="This issue is not assigned to you"
         )
     
     # Validate status transition
     valid_transitions = {
-        IssueStatus.ASSIGNED: [IssueStatus.PRADHAN_CHECK],
-        IssueStatus.PRADHAN_CHECK: [IssueStatus.STARTED_WORKING],
+        IssueStatus.ASSIGNED: [IssueStatus.PARSHAD_CHECK],
+        IssueStatus.PARSHAD_CHECK: [IssueStatus.STARTED_WORKING],
         IssueStatus.STARTED_WORKING: [IssueStatus.FINISHED_WORK],
         IssueStatus.FINISHED_WORK: [],  # Cannot change after completion
     }
     
-    # Also allow REPORTED -> PRADHAN_CHECK for backward compatibility
+    # Also allow REPORTED -> PARSHAD_CHECK for backward compatibility
     if issue.status == IssueStatus.REPORTED:
-        valid_transitions[IssueStatus.REPORTED] = [IssueStatus.PRADHAN_CHECK]
+        valid_transitions[IssueStatus.REPORTED] = [IssueStatus.PARSHAD_CHECK]
     
     allowed_statuses = valid_transitions.get(issue.status, [])
     
     if status_update.status not in allowed_statuses:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=http_status.HTTP_400_BAD_REQUEST,
             detail=f"Cannot transition from {issue.status.value} to {status_update.status.value}. "
                    f"Allowed: {[s.value for s in allowed_statuses]}"
         )
@@ -360,46 +361,175 @@ async def update_issue_status(
     return build_issue_response(issue, session)
 
 
-@pradhan_router.post(
+@parshad_router.post(
+    "/issues/{issue_id}/update-with-photos",
+    response_model=AdminIssueResponse,
+    summary="Update issue status with photo proof",
+)
+async def update_issue_with_photos(
+    issue_id: int,
+    new_status: IssueStatus = Form(..., alias="status", description="New status"),
+    progress_notes: Optional[str] = Form(None, description="Progress notes"),
+    photos: list[UploadFile] = File(default=[], description="Photo proof of work"),
+    parshad_user: User = Depends(get_parshad_user),
+    session: Session = Depends(get_session),
+):
+    """
+    Update issue status with optional photo proof.
+    
+    **Parshad Only**: Update status and upload photos as proof of work.
+    
+    - **status**: New status (parshad_check, started_working, finished_work)
+    - **progress_notes**: Notes about the progress/work done
+    - **photos**: Up to 5 photos as proof of work
+    """
+    issue = session.get(Issue, issue_id)
+    
+    if not issue:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=f"Issue with id {issue_id} not found"
+        )
+    
+    # Verify issue is assigned to this Parshad
+    if issue.assigned_parshad_id != parshad_user.id:
+        raise HTTPException(
+            status_code=http_status.HTTP_403_FORBIDDEN,
+            detail="This issue is not assigned to you"
+        )
+    
+    # Validate number of photos
+    if len(photos) > 5:
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail="Maximum 5 photos allowed per update"
+        )
+    
+    # Validate status transition
+    valid_transitions = {
+        IssueStatus.ASSIGNED: [IssueStatus.PARSHAD_CHECK],
+        IssueStatus.PARSHAD_CHECK: [IssueStatus.STARTED_WORKING],
+        IssueStatus.STARTED_WORKING: [IssueStatus.FINISHED_WORK],
+        IssueStatus.FINISHED_WORK: [],
+    }
+    
+    if issue.status == IssueStatus.REPORTED:
+        valid_transitions[IssueStatus.REPORTED] = [IssueStatus.PARSHAD_CHECK]
+    
+    allowed_statuses = valid_transitions.get(issue.status, [])
+    
+    if new_status not in allowed_statuses:
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot transition from {issue.status.value} to {new_status.value}. "
+                   f"Allowed: {[s.value for s in allowed_statuses]}"
+        )
+    
+    # Upload photos if provided
+    storage_service = get_storage_service()
+    uploaded_photos = []
+    
+    for photo in photos:
+        if photo.content_type not in settings.allowed_image_types:
+            raise HTTPException(
+                status_code=http_status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid file type: {photo.content_type}"
+            )
+        
+        content = await photo.read()
+        if len(content) > settings.max_file_size:
+            raise HTTPException(
+                status_code=http_status.HTTP_400_BAD_REQUEST,
+                detail=f"File {photo.filename} exceeds maximum size"
+            )
+        
+        try:
+            object_name = storage_service.upload_file(
+                file_data=content,
+                filename=photo.filename or "image.jpg",
+                content_type=photo.content_type or "image/jpeg",
+            )
+            
+            issue_photo = IssuePhoto(
+                issue_id=issue.id,
+                photo_url=object_name,
+                filename=photo.filename or "image.jpg",
+                file_size=len(content),
+                content_type=photo.content_type or "image/jpeg",
+            )
+            session.add(issue_photo)
+            uploaded_photos.append(issue_photo)
+        except Exception as e:
+            raise HTTPException(
+                status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to upload photo: {str(e)}"
+            )
+    
+    # Update status and notes
+    issue.status = new_status
+    
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+    status_label = new_status.value.replace("_", " ").title()
+    new_note = f"[{timestamp}] Status: {status_label}"
+    
+    if progress_notes:
+        new_note += f"\n{progress_notes}"
+    
+    if uploaded_photos:
+        new_note += f"\n({len(uploaded_photos)} photo(s) uploaded as proof)"
+    
+    if issue.progress_notes:
+        issue.progress_notes = f"{issue.progress_notes}\n\n{new_note}"
+    else:
+        issue.progress_notes = new_note
+    
+    session.add(issue)
+    session.commit()
+    session.refresh(issue)
+    
+    return build_issue_response(issue, session)
+
+
+@parshad_router.post(
     "/issues/{issue_id}/acknowledge",
     response_model=AdminIssueResponse,
     summary="Acknowledge an assigned issue",
 )
 async def acknowledge_issue(
     issue_id: int,
-    pradhan_user: User = Depends(get_pradhan_user),
+    parshad_user: User = Depends(get_parshad_user),
     session: Session = Depends(get_session),
 ):
     """
     Quick action to acknowledge a newly assigned issue.
     
-    Changes status from ASSIGNED to PRADHAN_CHECK.
+    Changes status from ASSIGNED to PARSHAD_CHECK.
     """
     issue = session.get(Issue, issue_id)
     
     if not issue:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=http_status.HTTP_404_NOT_FOUND,
             detail=f"Issue with id {issue_id} not found"
         )
     
-    if issue.assigned_pradhan_id != pradhan_user.id:
+    if issue.assigned_parshad_id != parshad_user.id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=http_status.HTTP_403_FORBIDDEN,
             detail="This issue is not assigned to you"
         )
     
     if issue.status != IssueStatus.ASSIGNED:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=http_status.HTTP_400_BAD_REQUEST,
             detail=f"Issue is already acknowledged (status: {issue.status.value})"
         )
     
-    issue.status = IssueStatus.PRADHAN_CHECK
+    issue.status = IssueStatus.PARSHAD_CHECK
     
     # Add acknowledgement note
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
-    ack_note = f"[{timestamp}] Issue acknowledged by Pradhan"
+    ack_note = f"[{timestamp}] Issue acknowledged by Parshad"
     issue.progress_notes = ack_note
     
     session.add(issue)
@@ -409,7 +539,7 @@ async def acknowledge_issue(
     return build_issue_response(issue, session)
 
 
-@pradhan_router.post(
+@parshad_router.post(
     "/issues/{issue_id}/start-work",
     response_model=AdminIssueResponse,
     summary="Start working on an issue",
@@ -417,32 +547,32 @@ async def acknowledge_issue(
 async def start_work(
     issue_id: int,
     notes: Optional[str] = Query(None, description="Notes about starting work"),
-    pradhan_user: User = Depends(get_pradhan_user),
+    parshad_user: User = Depends(get_parshad_user),
     session: Session = Depends(get_session),
 ):
     """
     Quick action to mark that work has started on an issue.
     
-    Changes status from PRADHAN_CHECK to STARTED_WORKING.
+    Changes status from PARSHAD_CHECK to STARTED_WORKING.
     """
     issue = session.get(Issue, issue_id)
     
     if not issue:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=http_status.HTTP_404_NOT_FOUND,
             detail=f"Issue with id {issue_id} not found"
         )
     
-    if issue.assigned_pradhan_id != pradhan_user.id:
+    if issue.assigned_parshad_id != parshad_user.id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=http_status.HTTP_403_FORBIDDEN,
             detail="This issue is not assigned to you"
         )
     
-    if issue.status != IssueStatus.PRADHAN_CHECK:
+    if issue.status != IssueStatus.PARSHAD_CHECK:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Cannot start work from status: {issue.status.value}. Must be in pradhan_check status."
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot start work from status: {issue.status.value}. Must be in parshad_check status."
         )
     
     issue.status = IssueStatus.STARTED_WORKING
@@ -465,7 +595,7 @@ async def start_work(
     return build_issue_response(issue, session)
 
 
-@pradhan_router.post(
+@parshad_router.post(
     "/issues/{issue_id}/complete",
     response_model=AdminIssueResponse,
     summary="Mark issue as completed",
@@ -473,7 +603,7 @@ async def start_work(
 async def complete_issue(
     issue_id: int,
     notes: Optional[str] = Query(None, description="Completion notes"),
-    pradhan_user: User = Depends(get_pradhan_user),
+    parshad_user: User = Depends(get_parshad_user),
     session: Session = Depends(get_session),
 ):
     """
@@ -485,19 +615,19 @@ async def complete_issue(
     
     if not issue:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=http_status.HTTP_404_NOT_FOUND,
             detail=f"Issue with id {issue_id} not found"
         )
     
-    if issue.assigned_pradhan_id != pradhan_user.id:
+    if issue.assigned_parshad_id != parshad_user.id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=http_status.HTTP_403_FORBIDDEN,
             detail="This issue is not assigned to you"
         )
     
     if issue.status != IssueStatus.STARTED_WORKING:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=http_status.HTTP_400_BAD_REQUEST,
             detail=f"Cannot complete from status: {issue.status.value}. Must be in started_working status."
         )
     

@@ -35,12 +35,21 @@ export const MainMenu = () => {
   const router = useRouter();
   const [showIssueTypeSheet, setShowIssueTypeSheet] = useState(false);
 
-  // Redirect to login if not authenticated
+  // Redirect based on authentication and role
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.replace('/login' as any);
+    if (!isLoading) {
+      if (!isAuthenticated) {
+        router.replace('/login' as any);
+      } else if (user?.role === 'parshad') {
+        // Redirect Parshad users to their dashboard
+        router.replace('/parshad-dashboard' as any);
+      }
+      // PWD workers would go to their own dashboard (to be implemented)
+      // else if (user?.role === 'pwd_worker') {
+      //   router.replace('/pwd-dashboard' as any);
+      // }
     }
-  }, [isAuthenticated, isLoading]);
+  }, [isAuthenticated, isLoading, user?.role]);
 
   const handleCreateReport = () => {
     if (!isAuthenticated) {

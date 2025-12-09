@@ -39,6 +39,8 @@ class IssueResponse(BaseModel):
     description: str
     latitude: float
     longitude: float
+    ward_id: Optional[int] = None
+    ward_name: Optional[str] = None
     status: IssueStatus
     user_id: Optional[int]
     created_at: datetime

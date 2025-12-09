@@ -43,6 +43,8 @@ async def create_issue(
     description: str = Form(..., min_length=10, max_length=2000),
     latitude: float = Form(..., ge=-90, le=90),
     longitude: float = Form(..., ge=-180, le=180),
+    ward_id: Optional[int] = Form(None, description="Ward number (1-100)"),
+    ward_name: Optional[str] = Form(None, max_length=200, description="Ward name"),
     photos: list[UploadFile] = File(default=[]),
     current_user: User = Depends(get_current_active_user),
     session: Session = Depends(get_session),
@@ -56,6 +58,8 @@ async def create_issue(
     - **description**: Detailed description of the issue
     - **latitude**: Location latitude
     - **longitude**: Location longitude
+    - **ward_id**: Ward number (1-100) for Dehradun Nagar Nigam
+    - **ward_name**: Ward name
     - **photos**: Up to 3 photos of the issue
     
     The user_id is automatically extracted from the authentication token.
@@ -93,6 +97,8 @@ async def create_issue(
         description=description,
         latitude=latitude,
         longitude=longitude,
+        ward_id=ward_id,
+        ward_name=ward_name,
         user_id=current_user.id,
         status=IssueStatus.REPORTED,
     )

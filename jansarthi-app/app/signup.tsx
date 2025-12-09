@@ -33,18 +33,32 @@ export default function SignupScreen() {
         return;
       }
 
+      // Clean and format phone number with country code
+      const cleanNumber = mobileNumber.replace(/\D/g, '');
+      // Remove leading 91 if user entered it
+      const digits = cleanNumber.startsWith('91') && cleanNumber.length > 10 
+        ? cleanNumber.slice(2) 
+        : cleanNumber;
+      
+      if (digits.length !== 10) {
+        setLocalError(getText(t.auth.login.enterValidMobileNumber));
+        return;
+      }
+      
+      const fullMobileNumber = `+91${digits}`;
+
       // Send OTP
       const response = await signup({
         name: name.trim(),
-        mobile_number: mobileNumber,
+        mobile_number: fullMobileNumber,
       });
       
       // Navigate to OTP verification screen
       router.push({
         pathname: '/verify-otp',
         params: {
-          mobile_number: mobileNumber,
-          expires_in: response.expires_in_minutes.toString(),
+          mobile_number: fullMobileNumber,
+          expires_in: String(response?.expires_in_minutes || 5),
           flow: 'signup',
         },
       });

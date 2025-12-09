@@ -28,15 +28,29 @@ export default function LoginScreen() {
         return;
       }
 
+      // Clean and format phone number with country code
+      const cleanNumber = mobileNumber.replace(/\D/g, '');
+      // Remove leading 91 if user entered it
+      const digits = cleanNumber.startsWith('91') && cleanNumber.length > 10 
+        ? cleanNumber.slice(2) 
+        : cleanNumber;
+      
+      if (digits.length !== 10) {
+        setLocalError(getText(t.auth.login.enterValidMobileNumber));
+        return;
+      }
+      
+      const fullMobileNumber = `+91${digits}`;
+
       // Send OTP
-      const response = await login({ mobile_number: mobileNumber });
+      const response = await login({ mobile_number: fullMobileNumber });
       
       // Navigate to OTP verification screen
       router.push({
         pathname: '/verify-otp',
         params: {
-          mobile_number: mobileNumber,
-          expires_in: response.expires_in_minutes.toString(),
+          mobile_number: fullMobileNumber,
+          expires_in: String(response?.expires_in_minutes || 5),
           flow: 'login',
         },
       });
@@ -69,24 +83,32 @@ export default function LoginScreen() {
         <VStack space="lg" className="flex-1">
           <FormControl isInvalid={!!localError || !!error}>
             <VStack space="sm">
-              <Input 
-                variant="outline" 
-                size="lg"
-                className="bg-background-50 border-outline-200"
-              >
-                <InputField
-                  placeholder={getText(t.auth.login.mobileNumberPlaceholder)}
-                  keyboardType="phone-pad"
-                  value={mobileNumber}
-                  onChangeText={(text) => {
-                    setMobileNumber(text);
-                    setLocalError('');
-                    clearError();
-                  }}
-                  autoFocus
-                  className="text-typography-900"
-                />
-              </Input>
+              <View className="flex-row">
+                {/* Country Code - Fixed */}
+                <View className="bg-background-100 border border-outline-200 rounded-l-lg h-12 px-4 justify-center">
+                  <Text className="text-typography-900 font-medium">+91</Text>
+                </View>
+                {/* Phone Input */}
+                <Input 
+                  variant="outline" 
+                  size="lg"
+                  className="flex-1 bg-background-50 border-outline-200 h-12 rounded-l-none"
+                >
+                  <InputField
+                    placeholder={getText(t.auth.login.mobileNumberPlaceholder)}
+                    keyboardType="phone-pad"
+                    value={mobileNumber}
+                    onChangeText={(text) => {
+                      setMobileNumber(text);
+                      setLocalError('');
+                      clearError();
+                    }}
+                    autoFocus
+                    className="text-typography-900"
+                    maxLength={10}
+                  />
+                </Input>
+              </View>
               {(localError || error) && (
                 <Text size="sm" className="text-error-500">
                   {localError || error}
@@ -102,7 +124,7 @@ export default function LoginScreen() {
             className="bg-brand-500 rounded-lg shadow-sm"
           >
             <ButtonText className="text-typography-white font-semibold">
-              {isLoading ? getText(t.auth.login.sendingOtp) : getText(t.auth.login.sendOtp)}
+              {isLoading ? getText(t.auth.login.sendingOtp) : getText(t.actions.next)}
             </ButtonText>
           </Button>
 
