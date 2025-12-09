@@ -19,9 +19,18 @@ class IssueStatus(str, Enum):
     """Enum for issue status"""
 
     REPORTED = "reported"
-    PRADHAN_CHECK = "pradhan_check"
+    ASSIGNED = "assigned"  # PWD assigned to Pradhan
+    PRADHAN_CHECK = "pradhan_check"  # Pradhan acknowledged
     STARTED_WORKING = "started_working"
     FINISHED_WORK = "finished_work"
+
+
+class UserRole(str, Enum):
+    """Enum for user roles"""
+    
+    USER = "user"  # Normal citizen who reports issues
+    PRADHAN = "pradhan"  # Village head who works on issues
+    PWD_WORKER = "pwd_worker"  # PWD official who assigns pradhans
 
 
 class Issue(SQLModel, table=True):
@@ -56,6 +65,15 @@ class Issue(SQLModel, table=True):
 
     # User ID (for future auth implementation)
     user_id: Optional[int] = Field(default=None, foreign_key="users.id", index=True)
+    
+    # Assigned Pradhan (set by PWD worker)
+    assigned_pradhan_id: Optional[int] = Field(default=None, foreign_key="users.id", index=True)
+    
+    # Assignment notes from PWD worker
+    assignment_notes: Optional[str] = Field(default=None, max_length=1000)
+    
+    # Pradhan's progress notes
+    progress_notes: Optional[str] = Field(default=None, max_length=2000)
 
     # Timestamps
     created_at: datetime = Field(
@@ -116,9 +134,25 @@ class User(SQLModel, table=True):
     name: str = Field(max_length=255)
     mobile_number: str = Field(unique=True, index=True, max_length=15)
     
+    # Role-based access
+    role: UserRole = Field(
+        default=UserRole.USER,
+        sa_column=Column(
+            SQLAEnum(UserRole, values_callable=lambda x: [e.value for e in x]),
+            nullable=False,
+            index=True,
+            default=UserRole.USER
+        )
+    )
+    
     # Authentication
     is_active: bool = Field(default=True)
     is_verified: bool = Field(default=False)
+    
+    # Location (for Pradhans - to match with nearby issues)
+    latitude: Optional[float] = Field(default=None, ge=-90, le=90)
+    longitude: Optional[float] = Field(default=None, ge=-180, le=180)
+    village_name: Optional[str] = Field(default=None, max_length=255)
 
     # Timestamps
     created_at: datetime = Field(

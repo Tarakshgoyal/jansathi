@@ -5,6 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import create_db_and_tables
 from app.routes.auth import auth_router
+from app.routes.pradhan import pradhan_router
+from app.routes.pwd import pwd_router
 from app.routes.reports import reports_router
 from app.settings.config import get_settings
 
@@ -43,6 +45,8 @@ app.add_middleware(
 # Include routers
 app.include_router(reports_router)
 app.include_router(auth_router)
+app.include_router(pwd_router)  # PWD Worker APIs
+app.include_router(pradhan_router)  # Pradhan APIs
 
 
 @app.get("/", tags=["Root"])
