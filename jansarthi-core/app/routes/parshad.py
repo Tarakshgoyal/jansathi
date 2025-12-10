@@ -251,6 +251,51 @@ async def get_pending_issues(
 
 
 @parshad_router.get(
+    "/issues/in-progress",
+    response_model=AdminIssueListResponse,
+    summary="Get in-progress issues",
+)
+async def get_in_progress_issues(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    parshad_user: User = Depends(get_parshad_user),
+    session: Session = Depends(get_session),
+):
+    """
+    Get issues that are in progress (PARSHAD_CHECK or STARTED_WORKING).
+    
+    These are issues the Parshad has acknowledged or started working on.
+    """
+    parshad_id = parshad_user.id
+    
+    query = select(Issue).where(
+        Issue.assigned_parshad_id == parshad_id,
+        Issue.status.in_([IssueStatus.PARSHAD_CHECK, IssueStatus.STARTED_WORKING])
+    )
+    count_query = select(func.count(Issue.id)).where(
+        Issue.assigned_parshad_id == parshad_id,
+        Issue.status.in_([IssueStatus.PARSHAD_CHECK, IssueStatus.STARTED_WORKING])
+    )
+    
+    total = session.exec(count_query).one()
+    
+    offset = (page - 1) * page_size
+    query = query.offset(offset).limit(page_size).order_by(Issue.updated_at.desc())
+    
+    issues = session.exec(query).all()
+    items = [build_issue_response(issue, session) for issue in issues]
+    total_pages = math.ceil(total / page_size) if total > 0 else 1
+    
+    return AdminIssueListResponse(
+        items=items,
+        total=total,
+        page=page,
+        page_size=page_size,
+        total_pages=total_pages,
+    )
+
+
+@parshad_router.get(
     "/issues/{issue_id}",
     response_model=AdminIssueResponse,
     summary="Get issue details",

@@ -121,7 +121,6 @@ export default function IssuesPage() {
   const fetchParshads = async () => {
     try {
       const data = await getParshads();
-      // Handle both array and object responses
       const parshadList = Array.isArray(data) 
         ? data 
         : ((data as unknown as { items?: ParshadInfo[]; parshads?: ParshadInfo[] })?.items || 

@@ -194,13 +194,13 @@ export const ParshadDashboard: React.FC = () => {
         apiService.getParshadDashboard(),
         activeTab === "pending"
           ? apiService.getParshadPendingIssues({ page: 1, page_size: 50 })
+          : activeTab === "in_progress"
+          ? apiService.getParshadInProgressIssues({ page: 1, page_size: 50 })
           : apiService.getParshadIssues({
               page: 1,
               page_size: 50,
               status:
-                activeTab === "in_progress"
-                  ? "started_working"
-                  : activeTab === "completed"
+                activeTab === "completed"
                   ? "finished_work"
                   : undefined,
             }),

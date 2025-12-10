@@ -524,6 +524,26 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  async getParshadInProgressIssues(params?: {
+    page?: number;
+    page_size?: number;
+  }): Promise<ParshadIssueListResponse> {
+    const headers = await this.getAuthHeaders();
+    
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.page_size) queryParams.append('page_size', params.page_size.toString());
+
+    const response = await fetch(
+      `${this.baseURL}/api/parshad/issues/in-progress?${queryParams.toString()}`,
+      {
+        method: 'GET',
+        headers,
+      }
+    );
+    return this.handleResponse(response);
+  }
+
   async getParshadIssueDetail(issueId: number): Promise<ParshadIssue> {
     const headers = await this.getAuthHeaders();
     const response = await fetch(`${this.baseURL}/api/parshad/issues/${issueId}`, {

@@ -21,15 +21,22 @@ interface StatusTrackerProps {
 const StatusTracker: React.FC<StatusTrackerProps> = ({ currentStatus, createdAt }) => {
   const { t, language, getText } = useLanguage();
 
+  // The stages now include 'assigned' which maps to 'parshad' visually
+  // assigned = PWD assigned to Parshad, parshad_check = Parshad acknowledged
   const stages = [
     { key: 'reported', label: getText(t.status.reported) },
-    { key: 'parshad_check', label: getText(t.status.parshad) },
+    { key: 'assigned', label: getText(t.status.parshad) }, // assigned = Parshad assigned
     { key: 'started_working', label: getText(t.status.pwdClerkStartedWorking) },
     { key: 'finished_work', label: getText(t.status.finishedWorking) },
   ];
 
   const getCurrentStageIndex = () => {
-    return stages.findIndex(stage => stage.key === currentStatus);
+    const status = currentStatus?.toLowerCase();
+    // Map parshad_check to assigned stage (both mean Parshad is involved)
+    if (status === 'parshad_check') {
+      return stages.findIndex(stage => stage.key === 'assigned');
+    }
+    return stages.findIndex(stage => stage.key === status);
   };
 
   const currentStageIndex = getCurrentStageIndex();
