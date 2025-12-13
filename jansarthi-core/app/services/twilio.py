@@ -2,8 +2,6 @@
 
 import random
 import re
-from datetime import datetime, timedelta
-
 from twilio.rest import Client
 
 from app.settings.config import get_settings

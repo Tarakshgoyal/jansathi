@@ -265,7 +265,6 @@ async def verify_otp(
         user=UserResponse.model_validate(user)
     )
 
-
 @auth_router.post(
     "/refresh",
     response_model=TokenResponse,

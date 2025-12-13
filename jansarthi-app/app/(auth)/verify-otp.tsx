@@ -86,7 +86,7 @@ export default function VerifyOTPScreen() {
       });
 
       // Navigate to home screen after successful verification
-      router.replace('/');
+      router.replace('/(app)');
     } catch (err) {
       console.error('OTP verification error:', err);
     }

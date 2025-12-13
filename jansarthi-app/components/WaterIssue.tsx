@@ -1,22 +1,22 @@
-import { useLanguage } from "@/contexts/LanguageContext";
-import { useAuth } from "@/contexts/AuthContext";
-import { apiService } from "@/services/api";
 import { Ward } from "@/config/wards";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { apiService } from "@/services/api";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { ScrollView, Alert } from "react-native";
+import { Alert, ScrollView } from "react-native";
 import LocationMap from "./LocationMap";
 import PhotoCapture from "./PhotoCapture";
 import WardSelector from "./WardSelector";
 import { Button, ButtonText } from "./ui/button";
 import {
-  FormControl,
-  FormControlLabel,
-  FormControlLabelText,
+    FormControl,
+    FormControlLabel,
+    FormControlLabelText,
 } from "./ui/form-control";
+import { Text } from "./ui/text";
 import { Textarea, TextareaInput } from "./ui/textarea";
 import { VStack } from "./ui/vstack";
-import { Text } from "./ui/text";
 
 interface WaterIssueProps {
   // Props will be added later
@@ -59,12 +59,6 @@ const WaterIssue: React.FC<WaterIssueProps> = () => {
     try {
       setError(null);
       setWardError(null);
-
-      // Check authentication
-      if (!isAuthenticated) {
-        router.push('/login' as any);
-        return;
-      }
 
       // Validate form
       if (!description.trim()) {

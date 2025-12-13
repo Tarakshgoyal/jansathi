@@ -634,8 +634,8 @@ export const translations: Translations = {
         hi: "मोबाइल नंबर",
       },
       mobileNumberPlaceholder: {
-        en: "Your phone number",
-        hi: "आपका फ़ोन नंबर",
+        en: "Phone number",
+        hi: "फ़ोन नंबर",
       },
       sendOtp: {
         en: "Send OTP",

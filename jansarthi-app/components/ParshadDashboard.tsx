@@ -1,36 +1,35 @@
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Box } from "@/components/ui/box";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
-  apiService,
-  ParshadDashboardStats,
-  ParshadIssue,
-  ParshadIssueListResponse,
+    apiService,
+    ParshadDashboardStats,
+    ParshadIssue
 } from "@/services/api";
 import { useRouter } from "expo-router";
 import {
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Construction,
-  Droplet,
-  RefreshCw,
-  Trash2,
-  User,
-  Zap,
+    AlertCircle,
+    CheckCircle,
+    Clock,
+    Construction,
+    Droplet,
+    RefreshCw,
+    Trash2,
+    User,
+    Zap,
 } from "lucide-react-native";
 import { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  RefreshControl,
-  ScrollView,
-  View,
+    ActivityIndicator,
+    RefreshControl,
+    ScrollView,
+    View,
 } from "react-native";
 
 interface StatCardProps {
@@ -267,7 +266,7 @@ export const ParshadDashboard: React.FC = () => {
           <HStack space="md" className="items-center">
             <LanguageSwitcher />
             <Pressable
-              onPress={() => router.push('/profile' as any)}
+              onPress={() => router.push('/(app)/profile')}
               className="border border-white/20 rounded-full p-3 bg-white/10 active:opacity-70"
               style={{ minWidth: 44, minHeight: 44 }}
             >

@@ -11,51 +11,59 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { View } from 'react-native';
 
-export default function LoginScreen() {
-  const { login, isLoading, error, clearError } = useAuth();
+export default function SignupScreen() {
+  const { signup, isLoading, error, clearError } = useAuth();
   const { t, getText } = useLanguage();
+  const [name, setName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [localError, setLocalError] = useState('');
 
-  const handleLogin = async () => {
+  const handleSignup = async () => {
     try {
       clearError();
       setLocalError('');
 
       // Basic validation
+      if (!name.trim()) {
+        setLocalError(getText(t.auth.signup.enterName));
+        return;
+      }
       if (!mobileNumber.trim()) {
-        setLocalError(getText(t.auth.login.enterMobileNumber));
+        setLocalError(getText(t.auth.signup.enterMobileNumber));
         return;
       }
 
       // Clean and format phone number with country code
       const cleanNumber = mobileNumber.replace(/\D/g, '');
       // Remove leading 91 if user entered it
-      const digits = cleanNumber.startsWith('91') && cleanNumber.length > 10 
-        ? cleanNumber.slice(2) 
+      const digits = cleanNumber.startsWith('91') && cleanNumber.length > 10
+        ? cleanNumber.slice(2)
         : cleanNumber;
-      
+
       if (digits.length !== 10) {
         setLocalError(getText(t.auth.login.enterValidMobileNumber));
         return;
       }
-      
+
       const fullMobileNumber = `+91${digits}`;
 
       // Send OTP
-      const response = await login({ mobile_number: fullMobileNumber });
-      
+      const response = await signup({
+        name: name.trim(),
+        mobile_number: fullMobileNumber,
+      });
+
       // Navigate to OTP verification screen
       router.push({
-        pathname: '/verify-otp',
+        pathname: '/(auth)/verify-otp',
         params: {
           mobile_number: fullMobileNumber,
           expires_in: String(response?.expires_in_minutes || 5),
-          flow: 'login',
+          flow: 'signup',
         },
       });
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('Signup error:', err);
     }
   };
 
@@ -69,11 +77,12 @@ export default function LoginScreen() {
         </View>
 
         <VStack space="md" className="items-center mt-20">
-          <Heading size="3xl" className="text-typography-white text-center font-bold">
-            {getText(t.auth.login.title)}
+          <Heading size='5xl' className='text-typography-white text-center font-bold'>{getText(t.appName)}</Heading>
+          <Heading size="2xl" className="text-typography-white text-center font-bold">
+            {getText(t.auth.signup.title)}
           </Heading>
           <Text size="md" className="text-typography-white text-center opacity-90">
-            {getText(t.auth.login.subtitle)}
+            {getText(t.auth.signup.subtitle)}
           </Text>
         </VStack>
       </View>
@@ -82,18 +91,34 @@ export default function LoginScreen() {
       <View className="flex-1 bg-background-0 rounded-t-3xl px-6 pt-8">
         <VStack space="lg" className="flex-1">
           <FormControl isInvalid={!!localError || !!error}>
-            <VStack space="sm">
+            <VStack space="md">
+              <Input
+                variant="outline"
+                size="lg"
+                className="bg-background-50 border-outline-200"
+              >
+                <InputField
+                  placeholder={getText(t.auth.signup.fullNamePlaceholder)}
+                  value={name}
+                  onChangeText={(text) => {
+                    setName(text);
+                    setLocalError('');
+                    clearError();
+                  }}
+                  autoFocus
+                  className="text-typography-900"
+                />
+              </Input>
+
               <View className="flex-row">
-                {/* Country Code - Fixed */}
-                <View className="bg-background-100 border border-outline-200 rounded-l-lg h-12 px-4 justify-center">
+                
+                <Input
+                  size="lg"
+                  className="flex-1 bg-background-50"
+                >
+                  <View className="bg-brand-400 border-outline-200 h-12 px-4 justify-center">
                   <Text className="text-typography-900 font-medium">+91</Text>
                 </View>
-                {/* Phone Input */}
-                <Input 
-                  variant="outline" 
-                  size="lg"
-                  className="flex-1 bg-background-50 border-outline-200 h-12 rounded-l-none"
-                >
                   <InputField
                     placeholder={getText(t.auth.login.mobileNumberPlaceholder)}
                     keyboardType="phone-pad"
@@ -103,12 +128,11 @@ export default function LoginScreen() {
                       setLocalError('');
                       clearError();
                     }}
-                    autoFocus
                     className="text-typography-900"
-                    maxLength={10}
                   />
                 </Input>
               </View>
+
               {(localError || error) && (
                 <Text size="sm" className="text-error-500">
                   {localError || error}
@@ -119,26 +143,26 @@ export default function LoginScreen() {
 
           <Button
             size="lg"
-            onPress={handleLogin}
+            onPress={handleSignup}
             isDisabled={isLoading}
             className="bg-brand-500 rounded-lg shadow-sm"
           >
             <ButtonText className="text-typography-white font-semibold">
-              {isLoading ? getText(t.auth.login.sendingOtp) : getText(t.actions.next)}
+              {isLoading ? getText(t.auth.signup.creatingAccount) : getText(t.auth.signup.signUp)}
             </ButtonText>
           </Button>
 
           <View className="flex-row justify-center items-center mt-2">
             <Text size="sm" className="text-typography-500">
-              {getText(t.auth.login.dontHaveAccount)}{' '}
+              {getText(t.auth.signup.alreadyHaveAccount)}{' '}
             </Text>
             <Button
               variant="link"
               size="sm"
-              onPress={() => router.push('/signup')}
+              onPress={() => router.back()}
             >
               <ButtonText className="text-brand-500 font-semibold">
-                {getText(t.auth.login.signUp)}
+                {getText(t.auth.signup.login)}
               </ButtonText>
             </Button>
           </View>

@@ -1,8 +1,8 @@
-import React from 'react';
-import { useLocalSearchParams, Stack } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import ReportDetail from '@/components/ReportDetail';
 import BackHeader from '@/components/BackHeader';
+import ReportDetail from '@/components/ReportDetail';
+import { Stack, useLocalSearchParams } from 'expo-router';
+import React from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ReportDetailScreen() {
   const { id } = useLocalSearchParams();

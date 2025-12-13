@@ -83,11 +83,6 @@ const IssuesMap: React.FC<IssuesMapProps> = () => {
   const loadIssues = async () => {
     try {
       setError(null);
-      
-      if (!isAuthenticated) {
-        router.push('/login' as any);
-        return;
-      }
 
       // Wait for user location if we don't have it yet
       let searchLocation = userLocation;

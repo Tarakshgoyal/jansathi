@@ -128,11 +128,6 @@ const MyReports: React.FC<MyReportsProps> = () => {
   const loadIssues = async () => {
     try {
       setError(null);
-      
-      if (!isAuthenticated) {
-        router.push('/login' as any);
-        return;
-      }
 
       const response = await apiService.getMyIssues({
         page: 1,

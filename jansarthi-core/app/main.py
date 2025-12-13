@@ -44,7 +44,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(reports_router)
-app.include_router(auth_router)
+app.include_router(auth_router) # Auth API
 app.include_router(pwd_router)  # PWD Worker APIs
 app.include_router(parshad_router)  # Parshad APIs
 
