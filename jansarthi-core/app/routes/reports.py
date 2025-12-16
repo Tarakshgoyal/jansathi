@@ -25,6 +25,7 @@ from app.schemas.issue import (
     PhotoUploadResponse,
 )
 from app.services.auth import get_current_active_user, get_optional_user
+from app.services.clustering import AutoAssignmentService
 from app.services.storage import get_storage_service
 from app.settings.config import get_settings
 
@@ -144,6 +145,19 @@ async def create_issue(
     # Generate presigned URLs for photos
     for photo in new_issue.photos:
         photo.photo_url = storage_service.get_file_url(photo.photo_url)
+
+    # ==================== Auto-Assignment ====================
+    # Try to auto-assign to parshad based on location clustering
+    try:
+        cluster = AutoAssignmentService.find_nearest_cluster(
+            new_issue.latitude, new_issue.longitude, session
+        )
+        if cluster and cluster.parshad_id:
+            AutoAssignmentService.auto_assign_issue(new_issue, session)
+            session.refresh(new_issue)
+    except Exception as e:
+        # Log but don't fail the issue creation
+        print(f"Auto-assignment failed (non-critical): {e}")
 
     return new_issue
 
